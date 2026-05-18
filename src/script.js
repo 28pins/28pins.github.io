@@ -125,34 +125,6 @@ function setJSONData(index, jsonData, type) {
             contentArea.appendChild(contentElement);
         }
     }
-
-    // Disconnect previous observer if present
-    if (window._contentObserver) {
-        window._contentObserver.disconnect();
-    }
-
-    // Observe content sections and activate corresponding sub-tabs on scroll
-    const options = { root: null, rootMargin: '-40% 0px -40% 0px', threshold: 0 };
-    window._contentObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const id = entry.target.id;
-                const subTab = document.getElementById(`sub-tab-${id}`);
-                if (subTab) {
-                    // activate this sub-tab and deactivate others
-                    const otherSubTabs = document.querySelectorAll('.sub-tab');
-                    otherSubTabs.forEach(st => st.classList.remove('active'));
-                    subTab.classList.add('active');
-                    // scroll the sub-tab into view at left edge
-                    subTab.scrollIntoView({ behavior: 'smooth', inline: 'start' });
-                }
-            }
-        });
-    }, options);
-
-    // start observing
-    const contents = contentArea.querySelectorAll('.content');
-    contents.forEach(c => window._contentObserver.observe(c));
 }
 
 function verifyVolunteer(item, role) {
