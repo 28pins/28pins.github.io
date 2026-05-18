@@ -6,15 +6,15 @@
 </head>
 
 <body>
-    <div class="header">
-        <h1>Games</h1>
-    </div>
     <div class="card">
-        <div id="tab-scroller" class="tab-scroller"></div>
-        <div id="sub-tab-scroller" class="sub-tab-scroller"></div>
-        <div id="content-area" class="content-area" onload="populate('gl')">Loading, please wait...</div>
+        <div class="tabs">
+            <div id="tab-scroller" class="tab-scroller"></div>
+            <div id="sub-tab-scroller" class="sub-tab-scroller"></div>
+        </div>
+        <div id="content-area" class="content-area">Loading, please wait...</div>
     </div>
     <script src="../src/script.js"></script>
+    <script>populate('gl');</script>
 </body>
 
 </html>

@@ -5,13 +5,13 @@ body {
 
 .card {
     background-color: #ace;
-    border-radius: 24px;
-    padding: 16px;
+    border-radius: 36px;
+    border: 16px solid #ace;
     min-height: 100%;
 }
 
 header {
-    border-radius: 8px;
+    border-radius: 24px;
     background-color: #cdf;
     padding: 16px;
     margin-bottom: 16px;
@@ -23,6 +23,18 @@ h2,
 h3 {
     margin: 0;
     color: #003;
+    text-align: center;
+}
+
+/* Make section headings stick to the top while scrolling their section */
+.content h2 {
+    position: sticky;
+    top: 0;
+    background-color: #cdf;
+    border-radius: 24px;
+    z-index: 2;
+    padding: 8px 0;
+    margin: 0 0 8px 0;
 }
 
 form {
@@ -32,13 +44,111 @@ form {
     gap: 16px;
 }
 
-button {
+button,
+input {
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: 24px;
     border-style: solid;
 }
 
 button:hover {
     background-color: #cdf;
     cursor: pointer;
+}
+
+.tab-scroller {
+    padding: 0px;
+    border: 8px solid #003;
+    background-color: #003;
+    display: flex;
+    gap: 0px;
+    overflow-x: auto;
+    box-sizing: border-box;
+    border-radius: 24px;
+    border-bottom-left-radius: 0%;
+    border-bottom-right-radius: 0%;
+    background-clip: padding-box;
+}
+
+.tab-scroller>div,
+.sub-tab-scroller>div {
+    padding: 8px 8px;
+    border-radius: 10px;
+    border-bottom-left-radius: 0%;
+    border-bottom-right-radius: 0%;
+    border: 1px solid #888;
+    border-bottom: none;
+    background-color: #cdd;
+    white-space: nowrap;
+}
+
+/* Remove top-left rounding on the first tab so it sits flush with the container */
+.tab-scroller>div:first-child {
+    border-top-left-radius: 0 !important;
+    /* Nudge the first tab left slightly to cover the scroller's rounded corner */
+    margin-left: -2px;
+}
+
+.sub-tab-scroller {
+    padding: 0px;
+    border: 8px solid #003;
+    border-radius: 24px;
+    border-top-left-radius: 0%;
+    border-top-right-radius: 0%;
+    background-color: #003;
+    display: flex;
+    gap: 0px;
+    overflow-x: auto;
+    box-sizing: border-box;
+    background-clip: padding-box;
+}
+
+/* Float the tab bar at the top of the viewport when scrolling */
+.tabs {
+    position: sticky;
+    top: 8px;
+    z-index: 200;
+}
+
+/* Avoid content underlapping the sticky tab bar */
+.content {
+    padding-top: 12px;
+}
+
+
+.sub-tab-scroller>div:first-child {
+    border-top-left-radius: 0% !important;
+}
+
+.sub-tab-scroller>div:last-child {
+    border-top-right-radius: 0% !important;
+}
+
+#tabs {
+    position: static;
+}
+
+.sub-tab-scroller>div a {
+    color: #003;
+    text-decoration: none;
+}
+
+.sub-tab-scroller .active,
+.tab-scroller .active,
+.active h1,
+.active h2 {
+    background-color: #fff !important;
+    border-color: #003 !important;
+    font-weight: bold;
+}
+
+.sub-tab-scroller .active,
+.tab-scroller .active {
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+}
+
+* {
+    scroll-behavior: smooth !important;
+    transition: background-color 0.9s ease, border-color 0.9s ease, padding 0.9s ease, margin 0.9s ease, border-radius 0.9s ease;
 }

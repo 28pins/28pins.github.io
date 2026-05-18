@@ -1,4 +1,7 @@
 function verify(urlBase) {
+    if (urlBase === "gl-zip" || urlBase === "sv-zip") {
+        window.location.href = urlBase.replace("-zip", "") + "/index.html";
+    }
     if (!urlBase.endsWith("/")) {
         urlBase += "/";
     }
@@ -20,36 +23,36 @@ function verify(urlBase) {
 }
 function populate(type) {
     const xhr = new XMLHttpRequest();
-    xhr.open("GET", "ardata.json", true);
+    xhr.open("GET", "../ardata.json", true);
     xhr.onload = function () {
         if (xhr.status === 200) {
-            const data = JSON.parse(xhr.responseText);
+            const parsed = JSON.parse(xhr.responseText);
+            const data = parsed.games || [];
             const tabScroller = document.getElementById("tab-scroller");
             const contentArea = document.getElementById("content-area");
             let tabs = [];
             const isGameLeader = type === "gl";
-            let jsonData = {};
-            data.forEach((item) => {
-                jsonData[item.name] = item;
-            });
-            jsonData.forEach((item) => {
-                item.forEach((subItem) => {
-                    if (subItem === "N/A") { subItem = "" }
-                });
-            });
-            jsonData.forEach((item) => {
+            // Use the games array directly and normalize "N/A" -> ""
+            let jsonData = data;
+            jsonData.forEach((item, idx) => {
+                for (const key in item) {
+                    if (item[key] === "N/A") {
+                        item[key] = "";
+                    }
+                }
                 if (isGameLeader || verifyVolunteer(item, "sv")) {
-                    tabs.push(item.name);
+                    tabs.push(idx);
                 }
             });
             let i = 0;
-            tabs.forEach((tab) => {
+            tabs.forEach((tabIndex) => {
                 const tabElement = document.createElement("div");
                 tabElement.className = "tab";
-                tabElement.textContent = tab.name.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+                const tab = jsonData[tabIndex];
+                tabElement.textContent = tab.name.replace(/_/g, " ").toLowerCase().replace(/(^|\s)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase());
                 tabElement.id = `tab-index-${i}`;
                 tabElement.addEventListener("click", () => {
-                    setJSONData(i, jsonData, type);
+                    setJSONData(tabIndex, jsonData, type);
                     tabElement.classList.add("active");
                     const otherTabs = document.querySelectorAll(".tab");
                     otherTabs.forEach((otherTab) => {
@@ -57,10 +60,12 @@ function populate(type) {
                             otherTab.classList.remove("active");
                         }
                     });
+                    tabElement.scrollIntoView({ behavior: 'smooth', inline: 'start' });
                 });
                 tabScroller.appendChild(tabElement);
                 i++;
             });
+            tabScroller.firstChild.classList.add("active");
             setJSONData(0, jsonData, type);
         }
     };
@@ -77,12 +82,17 @@ function setJSONData(index, jsonData, type) {
         if (item[key] !== "N/A" && item[key] !== "") {
             const subTabElement = document.createElement("div");
             subTabElement.className = "sub-tab";
-            subTabElement.innerHTML = `<a href="#${key}">${key.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}</a>`;
+            subTabElement.innerHTML = `<a href="#${key}">${key.replace(/_/g, " ").toLowerCase().replace(/(^|\s)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase())}</a>`;
             subTabElement.addEventListener("click", () => {
                 const contentElement = document.getElementById(key);
                 if (contentElement) {
                     contentElement.scrollIntoView({ behavior: "smooth" });
                 }
+                contentElement.classList.add("active");
+                setTimeout(() => {
+                    contentElement.classList.remove("active");
+                    contentElement.classList.add("highlight");
+                }, 500);
                 subTabElement.classList.add("active");
                 const otherSubTabs = document.querySelectorAll(".sub-tab");
                 otherSubTabs.forEach((otherSubTab) => {
@@ -90,11 +100,13 @@ function setJSONData(index, jsonData, type) {
                         otherSubTab.classList.remove("active");
                     }
                 });
+                subTabElement.scrollIntoView({ behavior: 'smooth', inline: 'start' });
             });
             subTabElement.id = `sub-tab-${key}`;
             subTabScroller.appendChild(subTabElement);
         }
     }
+    subTabScroller.firstChild.classList.add("active");
     for (const key in item) {
         if (item[key] !== "N/A" && item[key] !== "") {
             if (key === "read_to_the_youth" || key === "instructions" || key === "debrief" || key === "answer") {
@@ -105,10 +117,42 @@ function setJSONData(index, jsonData, type) {
             const contentElement = document.createElement("div");
             contentElement.className = "content";
             contentElement.id = key;
-            contentElement.textContent = item[key];
+            if (key === "name") {
+                contentElement.innerHTML = `<h1>${item[key].replace(/_/g, " ").toLowerCase().replace(/(^|\s)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase())}</h1><hr>`;
+            } else {
+                contentElement.innerHTML = `<h2>${key.replace(/_/g, " ").toLowerCase().replace(/(^|\s)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase())}</h2><p>${item[key]}</p>`;
+            }
             contentArea.appendChild(contentElement);
         }
     }
+
+    // Disconnect previous observer if present
+    if (window._contentObserver) {
+        window._contentObserver.disconnect();
+    }
+
+    // Observe content sections and activate corresponding sub-tabs on scroll
+    const options = { root: null, rootMargin: '-40% 0px -40% 0px', threshold: 0 };
+    window._contentObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.id;
+                const subTab = document.getElementById(`sub-tab-${id}`);
+                if (subTab) {
+                    // activate this sub-tab and deactivate others
+                    const otherSubTabs = document.querySelectorAll('.sub-tab');
+                    otherSubTabs.forEach(st => st.classList.remove('active'));
+                    subTab.classList.add('active');
+                    // scroll the sub-tab into view at left edge
+                    subTab.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+                }
+            }
+        });
+    }, options);
+
+    // start observing
+    const contents = contentArea.querySelectorAll('.content');
+    contents.forEach(c => window._contentObserver.observe(c));
 }
 
 function verifyVolunteer(item, role) {
