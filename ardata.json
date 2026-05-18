@@ -1,0 +1,64 @@
+{
+    "games": [
+        {
+            "name": "Start",
+            "location": "TBD",
+            "prep": "N/A",
+            "materials": "N/A",
+            "read_to_the_youth": "You are at the start of the amazing race. Your goal is to complete all four gospel-themed games as quickly as possible and be the first group back here. After each game, there will be a chance for two (or more?) people from your group to share their thoughts on how the game or something within the game relates to the gospel. You can't move on until you share.",
+            "instructions": "Gather tribe and split into three groups. Read the instructions to the youth, and start the race after answering questions.",
+            "answer": "N/A",
+            "debrief": "N/A"
+        },
+        {
+            "name": "Silent Number Order",
+            "location": "TBD",
+            "prep": "15 Number cards",
+            "materials": "Gather number cards into a bag",
+            "read_to_the_youth": "For this game, you will each draw a card with an Old Testament number on it. For example, you might draw a card that says \"How many days did the creation take?\", which would be 7. Without talking or whispering, arrange yourselves in order from least to greatest number. Let me know when you are ready.",
+            "instructions": "Each person draws a card. The youth must arrange themselves in order from least to greatest. No talking or whispering allowed, except to tell the group leader that they are ready. When they are ready, check that the numbers are in size order according to the answer key (If there are less that 15 people, ignore the missing cards).",
+            "answer": "TODO",
+            "debrief": "Are there any numbers that surprise you? What do you think about the biggest one? Does anyone have any thoughts or questions about any of the numbers? How does this game relate to the gospel?"
+        },
+        {
+            "name": "Pin the tail on Balaam's donkey",
+            "location": "TBD Classroom",
+            "prep": "Donkey poster, 5 tails with pins",
+            "materials": "Set the donkey upon the chalkboard ledge and remove any tails that are already on the donkey.",
+            "read_to_the_youth": "For this game, you will line up, and the first person will be blindfolded using a bandana. Then, everyone will take turns trying to poke the tail where it belongs on the donkey. Your group is done once someone has placed their tail in the correct spot.",
+            "instructions": "Ensure each person is correctly blindfolded before they start. The game ends once someone has placed their tail so that on the back of the poster, the pin is visible inside the red circle.",
+            "answer": "N/A",
+            "debrief": "Does anyone know the story of Balaam's donkey? What is one lesson we can learn from that story or the game?"
+        },
+        {
+            "name": "Move mountains",
+            "location": "TBD Outside",
+            "prep": "5 inflatable rings, 3 PVC poles with bases",
+            "materials": "If the towers are not assembled, put the pipe into the base. Set up the towers around 10 feet apart and place the inflatables in a pyramid on the first pole.",
+            "read_to_the_youth": "For this game, you will work together to move the pyramid of rings from the first pole to the last pole. Only one ring at a time may be off of a pole, and in no case can a larger ring be on top of a smaller ring. If either rule is broken, you must return the rings to the starting pole and start again.",
+            "instructions": "The game is complete once all of the rings are on the last pole in the same order as they were on the first pole without the rules being broken.",
+            "answer": "All 5 rings in height order on last pole",
+            "debrief": "Did you ever get stuck while moving the mountain? How did you get through it? Jesus said that we can move mountains if we have faith. What do you think that means? How does this game relate to the gospel?"
+        },
+        {
+            "name": "Trivia Maze",
+            "location": "Parking lot",
+            "prep": "15 trivia cards, chalk, measuring tape",
+            "materials": "Draw a maze on the ground with chalk using the measuring tape and the reference image. Place the numbered trivia cards at each marked point.",
+            "read_to_the_youth": "For this game, you will work together to navigate the maze and avoid wandering in the wilderness. You will start at the beginning and choose a path to take. At some points, you will see a card with a trivia question. Answering the question will tell you which way to go. Don't cheat by crossing over the lines; if you do so, you will have to restart.",
+            "instructions": "Make sure the youth do not cross over the lines and wait at the end once they start. Make sure to read the rules in the next section.",
+            "answer": "The game ends once all the youth have made it through the maze bringing card number 12. Notice the big exit and the little exit; unless they read all the trivia cards, they will likely go through the big exit. In this case, tell them they didn't finish the maze and have to restart.",
+            "debrief": "Were you excited to get out of the maze? How does this game relate to the gospel? Did you get caught not reading the cards and trying to take the big exit? What might that symbolize?"
+        },
+        {
+            "name": "End",
+            "location": "TBD (Same as start)",
+            "prep": "N/A",
+            "materials": "N/A",
+            "read_to_the_youth": "Congratulations on finishing the amazing race!",
+            "instructions": "N/A",
+            "answer": "N/A",
+            "debrief": "How did the games you played relate to the gospel? What is one connection between a game you played and the Old Testament?"
+        }
+    ]
+}
