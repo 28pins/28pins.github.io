@@ -5,10 +5,10 @@
             "location": "TBD",
             "prep": "N/A",
             "materials": "N/A",
-            "read_to_the_youth": "Welcome to the amazing race. Your goal is to complete all four gospel-themed games as quickly as possible and be the first group back here. After each game, there will be a chance for two (or more?) people from your group to share their thoughts on how the game or something within the game relates to the gospel. You can't move on until you share.",
+            "read_to_the_youth": "Welcome to the amazing race. Your goal is to complete all four gospel-themed games as quickly as possible and be the first group back here. After each game, there will be a chance for two (or more) people from your group to share their thoughts on how the game or something within the game relates to the gospel. You can't move on until you share.",
             "instructions": "Gather tribe and split into three groups. Read the instructions to the youth, and start the race after answering questions, if any.",
             "answer": "N/A",
-            "Follow-up": "N/A"
+            "debrief": "N/A"
         },
         {
             "name": "Silent Number Order",
@@ -18,7 +18,7 @@
             "read_to_the_youth": "For this game, you will each draw a card with an Old Testament number on it. For example, you might draw a card that says \"How many days did the creation take?\", which would be 7. Without talking or whispering, arrange yourselves in order from least to greatest number. Let me know when you are ready.",
             "instructions": "Each person draws a card. The youth must arrange themselves in order from least to greatest. No talking or whispering allowed, except to tell the group leader that they are ready. When they are ready, check that the numbers are in size order according to the answer key (If there are less that 15 people, ignore the missing cards).",
             "answer": "TODO",
-            "Follow-up": "Are there any numbers that surprise you? What do you think about the biggest one? Does anyone have any thoughts or questions about any of the numbers? How does this game relate to the gospel?"
+            "debrief": "Are there any numbers that surprise you? What do you think about the biggest one? Does anyone have any thoughts or questions about any of the numbers? How does this game relate to the gospel?"
         },
         {
             "name": "Pin the tail on Balaam's donkey",
@@ -28,7 +28,7 @@
             "read_to_the_youth": "For this game, you will line up, and the first person will be blindfolded using a bandana. Then, everyone will take turns trying to poke the tail where it belongs on the donkey. Your group is done once someone has placed their tail in the correct spot.",
             "instructions": "Ensure each person is correctly blindfolded before they start. The game ends once someone has placed their tail so that on the back of the poster, the pin is visible inside the red circle.",
             "answer": "N/A",
-            "Follow-up": "Does anyone know the story of Balaam's donkey? What is one lesson we can learn from that story or the game?"
+            "debrief": "Does anyone know the story of Balaam's donkey? What is one lesson we can learn from that story or the game?"
         },
         {
             "name": "Move mountains",
@@ -38,7 +38,7 @@
             "read_to_the_youth": "In life, we face a lot of metaphorical mountains that we need to move.  Sometimes, there are metaphorical sharks along the way, but overcoming is possible through Christ. For this game, you will work together to move the pyramid of rings from the first pole to the last pole. Only one ring at a time may be off of a pole, and in no case can a larger ring be on top of a smaller ring. If either rule is broken, you must return the rings to the starting pole and start again.",
             "instructions": "The game is complete once all of the rings are on the last pole in the same order as they were on the first pole without the rules being broken.",
             "answer": "All 5 rings in height order on last pole",
-            "Follow-up": "Did you ever get stuck while moving the mountain? How did you get through it? Jesus said that we can move mountains if we have faith. What do you think that means? How does this game relate to the gospel?"
+            "debrief": "Did you ever get stuck while moving the mountain? How did you get through it? Jesus said that we can move mountains if we have faith. What do you think that means? How does this game relate to the gospel?"
         },
         {
             "name": "Group Trivia",
@@ -57,7 +57,7 @@
             "read_to_the_youth": "Congratulations on finishing the amazing race!",
             "instructions": "N/A",
             "answer": "N/A",
-            "Follow-up": "How did the games you played relate to the gospel? What is one connection between a game you played and the Old Testament?"
+            "debrief": "How did the games you played relate to the gospel? What is one connection between a game you played and the Old Testament?"
         }
     ]
 }
