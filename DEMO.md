@@ -32,7 +32,7 @@ Please enter the password to access this page.<br>
 - To keep things fair, don't give hints to the youth about the games.
 - Don't let the youth move on to the next game until they have shared their thoughts on how the game relates to the gospel.
 
-| Game | Location | Prep | Materials | Read to the Youth | Instructions | Answer | Debrief |
+| Game | Location | Prep | Materials | Read to the Youth | Instructions | Answer | Follow-up |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | | | | | Read this out loud | | Make sure these requirements are met | Ask some or all of the questions |
 | --- | --- | --- | --- | --- | --- | --- | --- |

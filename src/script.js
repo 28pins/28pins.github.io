@@ -8,18 +8,21 @@ function verify(urlBase) {
     document.getElementsByTagName("form")[0].innerHTML = `
         <label for="password">Enter the password:</label>
         <input type="password" id="password" name="password">
-        <input type="submit" value="Submit">
+        <input type="button" value="Submit">
     `;
 
-    document.getElementsByTagName("form")[0].addEventListener("submit", function (event) {
+    function handleSubmit(event) {
         event.preventDefault();
-        const password = document.getElementById("password").value;
-        if (password === "ComeUntoChrist") {
+        const password = document.getElementById("password").value.toLowerCase().replace(" ", "");
+        if (password.includes("come") && password.includes("unto") && password.includes("christ")) {
             window.open(urlBase + "index.html", "_self");
         } else {
             alert("Incorrect password. Please try again.");
         }
-    });
+    }
+
+    document.getElementsByTagName("form")[0].addEventListener("submit", handleSubmit);
+    document.getElementsByTagName("input")[1].addEventListener("click", handleSubmit);
 }
 function populate(type) {
     const xhr = new XMLHttpRequest();
@@ -109,7 +112,7 @@ function setJSONData(index, jsonData, type) {
     subTabScroller.firstChild.classList.add("active");
     for (const key in item) {
         if (item[key] !== "N/A" && item[key] !== "") {
-            if (key === "read_to_the_youth" || key === "instructions" || key === "debrief" || key === "answer") {
+            if (key === "read_to_the_youth" || key === "instructions" || key === "Follow-up" || key === "answer") {
                 if (type === "sv") {
                     return;
                 }
