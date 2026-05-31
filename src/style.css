@@ -216,6 +216,24 @@ p {
     transition: background-color 0.9s ease, border-color 0.9s ease, padding 0.9s ease, margin 0.9s ease, border-radius 0.9s ease;
 }
 
+.true {
+    border-color: green !important;
+}
+
+.false {
+    border-color: red !important;
+}
+
+.falseText {
+    color: white !important;
+    background-color: red !important;
+}
+
+.trueText {
+    color: white !important;
+    background-color: green !important;
+}
+
 /* Touch device optimizations */
 @media (hover: none) and (pointer: coarse) {
 

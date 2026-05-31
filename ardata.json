@@ -14,9 +14,9 @@
             "name": "Silent Number Order",
             "location": "TBD",
             "prep": "Gather number cards into a bag",
-            "materials": "15 Number cards",
+            "materials": "12 Number cards",
             "read_to_the_youth": "For this game, you will each draw a card with an Old Testament number on it. For example, you might draw a card that says \"How many days did the creation take?\", which would be 7. Without talking or whispering, arrange yourselves in order from least to greatest number. Let me know when you are ready.",
-            "instructions": "Each person draws a card. The youth must arrange themselves in order from least to greatest. No talking or whispering allowed, except to tell the group leader that they are ready. When they are ready, check that the numbers are in size order according to the answer key (If there are less that 15 people, ignore the missing cards).",
+            "instructions": "Each person draws a card. The youth must arrange themselves in order from least to greatest. No talking or whispering allowed, except to tell the group leader that they are ready. When they are ready, check that the numbers are in size order according to the answer key (If there are fewer than 12 people, ignore the missing cards).",
             "answer": "TODO",
             "debrief": "Are there any numbers that surprise you? What do you think about the biggest one? Does anyone have any thoughts or questions about any of the numbers? How does this game relate to the gospel?"
         },
@@ -42,11 +42,12 @@
         },
         {
             "name": "Group Trivia",
-            "location": "Parking lot",
+            "location": "TBD",
             "prep": "Gather the cards.",
-            "materials": "15 trivia cards",
-            "read_to_the_youth": "For this game, you will work together to get all 15 questions correct in a row.  I will read a true or false question about the Old Testament.  If it is true, go to the right side of the room; go to the left if it is false. (ensure the youth know which side is which)  After readimg the card, I will count to 5; whichever side has the most people will count as your answer.",
-            "answer": "If the youth get a card wrong, finish the deck and restart.  If there is a tie between both sides, they get the card wrong automatically.",
+            "materials": "12 trivia cards",
+            "read_to_the_youth": "For this game, you will work together to get all 12 questions correct in a row.  I will read a true or false question about the Old Testament.  If it is true, go to the right side of the room; go to the left if it is false. (ensure the youth know which side is which)  After reading the card, I will count to 5; whichever side has the most people will count as your answer.",
+            "instructions": "If the youth get a card wrong, finish the deck and restart.  If there is a tie between both sides, they get the card wrong automatically.",
+            "answer": "Click <a href=\"trivia.html\">here</a> for the questions and answers.",
             "debrief": "Were you excited to get out of the maze? How does this game relate to the gospel? Did you get caught not reading the cards and trying to take the big exit? What might that symbolize?"
         },
         {
