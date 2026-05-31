@@ -13,7 +13,13 @@
         <header>
             <h1>Trivia Questions</h1>
             <h2 id="progress">Question 1 of 12</h2>
+            <div class="progress-bar" aria-hidden="true">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <button type="button" id="back-btn" class="btn-back" onclick="window.location.href='index.html'">← Back to Games</button>
         </header>
+
+        <div id="loading-indicator" class="loading-indicator">Loading questions...</div>
 
         <div id="trivia-container" class="trivia-container">
             <!-- Question card will be dynamically inserted here -->
@@ -33,6 +39,13 @@
         let userAnswers = [];
         let missedIndices = [];
 
+        function updateProgress() {
+            const total = questions.length || 1;
+            const answered = Math.min(currentIndex + 1, total);
+            document.getElementById('progress').textContent = questions.length ? `Question ${answered} of ${questions.length}` : 'Loading questions...';
+            document.getElementById('progress-fill').style.width = questions.length ? `${(answered / total) * 100}%` : '0%';
+        }
+
         function renderQuestion() {
             const container = document.getElementById('trivia-container');
             const question = questions[currentIndex];
@@ -47,7 +60,7 @@
                         
                         ${isAnswered ? `
                             <div class="trivia-feedback ${isCorrect ? 'correct' : 'incorrect'}">
-                                <p class="feedback-text">${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</p>
+                                <p class="feedback-text">${isCorrect ? 'Correct!' : 'Incorrect'}</p>
                                 <p class="correct-answer">The answer is: <strong>${question.answer}</strong></p>
                                 <p class="context">${question.context}</p>
                             </div>
@@ -68,7 +81,7 @@
             `;
 
             container.innerHTML = questionCard;
-            document.getElementById('progress').textContent = `Question ${currentIndex + 1} of ${questions.length}`;
+            updateProgress();
         }
 
         function answerQuestion(answer) {
@@ -103,9 +116,10 @@
 
             container.style.display = 'none';
             resultsContainer.style.display = 'block';
+            document.getElementById('progress-fill').style.width = '100%';
 
             if (missedIndices.length === 0) {
-                resultsMessage.innerHTML = `<strong>🎉 Perfect! All ${questions.length} questions correct!</strong>`;
+                resultsMessage.innerHTML = `<strong>Perfect! All ${questions.length} questions correct!</strong>`;
                 document.getElementById('retry-btn').style.display = 'none';
             } else {
                 resultsMessage.innerHTML = `<strong>${missedIndices.length} question${missedIndices.length !== 1 ? 's' : ''} missed. Start over and try again!</strong>`;
@@ -137,14 +151,17 @@
         document.getElementById('retry-btn').addEventListener('click', retry);
 
         // Load questions from JSON file
+        updateProgress();
         fetch('trivia-data.json')
             .then(response => response.json())
             .then(data => {
                 questions = data;
+                document.getElementById('loading-indicator').style.display = 'none';
                 renderQuestion();
             })
             .catch(error => {
                 console.error('Error loading trivia data:', error);
+                document.getElementById('loading-indicator').textContent = 'Unable to load questions.';
                 document.getElementById('trivia-container').innerHTML = '<p>Error loading questions. Please refresh the page.</p>';
             });
     </script>
