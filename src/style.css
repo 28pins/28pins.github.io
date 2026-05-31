@@ -316,6 +316,7 @@ td.trueText {
     display: flex;
     gap: 16px;
     justify-content: center;
+    width: 50%;
     flex-wrap: wrap;
 }
 
@@ -440,7 +441,7 @@ td.trueText {
     margin-bottom: 16px;
 }
 
-.results-container > p {
+.results-container>p {
     font-size: clamp(18px, 4vw, 24px);
     margin-bottom: 24px;
 }
@@ -509,6 +510,7 @@ td.trueText {
 }
 
 @media (hover: none) and (pointer: coarse) {
+
     .btn-true,
     .btn-false,
     .btn-next,
