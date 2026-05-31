@@ -295,6 +295,16 @@ td.trueText {
     border-color: red;
 }
 
+.trivia-card.correct-answer-border {
+    border-color: green !important;
+    border-width: 8px;
+}
+
+.trivia-card.incorrect-answer-border {
+    border-color: red !important;
+    border-width: 8px;
+}
+
 .trivia-card-inner {
     display: flex;
     flex-direction: column;
@@ -316,8 +326,16 @@ td.trueText {
     display: flex;
     gap: 16px;
     justify-content: center;
-    width: 50%;
     flex-wrap: wrap;
+}
+
+.youth-said-heading {
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    text-align: center;
+    margin: 0;
+    padding: 12px 0;
 }
 
 .btn-true,
@@ -333,6 +351,12 @@ td.trueText {
     color: var(--color-text-primary);
     cursor: pointer;
     transition: all 0.3s ease;
+}
+
+.btn-true:disabled,
+.btn-false:disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
 }
 
 .btn-true {

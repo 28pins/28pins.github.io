@@ -37,26 +37,26 @@
             const container = document.getElementById('trivia-container');
             const question = questions[currentIndex];
             const isAnswered = userAnswers[currentIndex] !== undefined;
+            const isCorrect = isAnswered && userAnswers[currentIndex] === question.answer;
+            const borderClass = isAnswered ? (isCorrect ? 'correct-answer-border' : 'incorrect-answer-border') : '';
 
             const questionCard = `
-                <div class="trivia-card ${question.answer.toLowerCase()}">
+                <div class="trivia-card ${question.answer.toLowerCase()} ${borderClass}">
                     <div class="trivia-card-inner">
                         <p class="trivia-statement">${question.statement}</p>
                         
-                        ${isAnswered ? `
-                            <div class="trivia-feedback ${userAnswers[currentIndex] === question.answer ? 'correct' : 'incorrect'}">
-                                <p class="feedback-text">${userAnswers[currentIndex] === question.answer ? '✓ Correct!' : '✗ Incorrect'}</p>
-                                <p class="correct-answer">The answer is: <strong>${question.answer}</strong></p>
-                                <p class="context">${question.context}</p>
-                            </div>
-                        ` : ''}
-
+                        <h3 class="youth-said-heading">The Youth Said:</h3>
                         <div class="trivia-buttons">
-                            <button class="btn-true ${isAnswered && userAnswers[currentIndex] === 'True' ? 'selected' : ''}" onclick="answerQuestion('True')">True</button>
-                            <button class="btn-false ${isAnswered && userAnswers[currentIndex] === 'False' ? 'selected' : ''}" onclick="answerQuestion('False')">False</button>
+                            <button class="btn-true ${isAnswered && userAnswers[currentIndex] === 'True' ? 'selected' : ''}" ${isAnswered ? 'disabled' : ''} onclick="answerQuestion('True')">True</button>
+                            <button class="btn-false ${isAnswered && userAnswers[currentIndex] === 'False' ? 'selected' : ''}" ${isAnswered ? 'disabled' : ''} onclick="answerQuestion('False')">False</button>
                         </div>
 
                         ${isAnswered ? `
+                            <div class="trivia-feedback ${isCorrect ? 'correct' : 'incorrect'}">
+                                <p class="feedback-text">${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</p>
+                                <p class="correct-answer">The answer is: <strong>${question.answer}</strong></p>
+                                <p class="context">${question.context}</p>
+                            </div>
                             <button class="btn-next" onclick="nextQuestion()">Next →</button>
                         ` : ''}
                     </div>
@@ -104,7 +104,7 @@
                 resultsMessage.innerHTML = `<strong>🎉 Perfect! All ${questions.length} questions correct!</strong>`;
                 document.getElementById('retry-btn').style.display = 'none';
             } else {
-                resultsMessage.innerHTML = `<strong>You got ${questions.length - missedIndices.length} out of ${questions.length} correct.</strong><br>Review the missed questions below and try again!`;
+                resultsMessage.innerHTML = `<strong>${missedIndices.length} question${missedIndices.length !== 1 ? 's' : ''} missed. Start over and try again!</strong>`;
 
                 let missedHTML = '<div class="missed-list">';
                 missedIndices.forEach(idx => {
@@ -113,7 +113,6 @@
                         <div class="missed-item ${q.answer.toLowerCase()}">
                             <p><strong>Q${idx + 1}:</strong> ${q.statement}</p>
                             <p class="correct-answer">Correct answer: <strong>${q.answer}</strong></p>
-                            <p class="context">${q.context}</p>
                         </div>
                     `;
                 });
