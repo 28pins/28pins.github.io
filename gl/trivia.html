@@ -16,10 +16,10 @@
             <div class="progress-bar" aria-hidden="true">
                 <div id="progress-fill" class="progress-fill"></div>
             </div>
-            <a id="back-btn" class="btn-back" href="index.html">← Back to Games</a>
+            <a id="back-btn" class="btn-back" href="/gl/index.html">← Back to Games</a>
         </header>
 
-        <div id="loading-indicator" class="loading-indicator">Loading questions...</div>
+        <div id="loading-indicator" class="loading-indicator" style="display: block;">Loading questions...</div>
 
         <div id="trivia-container" class="trivia-container">
             <!-- Question card will be dynamically inserted here -->
@@ -156,6 +156,7 @@
 
         // Load questions from JSON file
         updateProgress();
+        document.getElementById('loading-indicator').style.display = 'block';
         fetch('trivia-data.json')
             .then(response => response.json())
             .then(data => {
