@@ -340,8 +340,8 @@ td.trueText {
 
 .btn-true,
 .btn-false {
-    flex: 1;
-    min-width: 120px;
+    flex: 1 1 100%;
+    min-width: 100%;
     padding: 16px 24px;
     font-size: clamp(18px, 4vw, 24px);
     font-weight: 600;
