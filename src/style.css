@@ -289,14 +289,6 @@ td.trueText {
     flex-direction: column;
 }
 
-.trivia-card.true {
-    border-color: green;
-}
-
-.trivia-card.false {
-    border-color: red;
-}
-
 .trivia-card.true.correct-answer-border {
     border-color: green !important;
     border-width: 10px !important;
