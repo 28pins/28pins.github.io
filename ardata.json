@@ -43,12 +43,12 @@
         {
             "name": "Group Trivia",
             "location": "TBD",
-            "prep": "Gather the cards.",
-            "materials": "12 trivia cards",
-            "read_to_the_youth": "For this game, you will work together to get all 12 questions correct in a row.  I will read a true or false question about the Old Testament.  If it is true, go to the right side of the room; go to the left if it is false. (ensure the youth know which side is which)  After reading the card, I will count to 5; whichever side has the most people will count as your answer.",
+            "prep": "N/A",
+            "materials": "N/A",
+            "read_to_the_youth": "For this game, you will work together to get all 12 questions correct in a row.  I will read a true or false question about the Old Testament.  If it is true, go to the right side of the room; go to the left if it is false. (ensure the youth know which side is which)  After reading the question, you will have a short time to deliberate; whichever side has the most people will count as your answer.",
             "instructions": "If the youth get a card wrong, finish the deck and restart.  If there is a tie between both sides, they get the card wrong automatically.",
-            "answer": "Click <a href=\"trivia.html\">here</a> for the questions and answers.",
-            "debrief": "Were you excited to get out of the maze? How does this game relate to the gospel? Did you get caught not reading the cards and trying to take the big exit? What might that symbolize?"
+            "answer": "Click <a href=\"trivia.html\">here</a> for the interactive trivia cards.",
+            "debrief": "How did your group do on the trivia questions? What questions surprised you? How does learning about the Old Testament relate to the gospel?"
         },
         {
             "name": "End",

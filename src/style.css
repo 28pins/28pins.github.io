@@ -91,7 +91,7 @@ input {
     font-size: clamp(14px, 4vw, 20px);
     font-weight: 600;
     transition: background-color 0.2s ease;
-    min-height: 44px;
+    min-height: 60px;
 }
 
 button:hover {
@@ -216,20 +216,20 @@ p {
     transition: background-color 0.9s ease, border-color 0.9s ease, padding 0.9s ease, margin 0.9s ease, border-radius 0.9s ease;
 }
 
-.true {
+tr.true {
     border-color: green !important;
 }
 
-.false {
+tr.false {
     border-color: red !important;
 }
 
-.falseText {
+td.falseText {
     color: white !important;
     background-color: red !important;
 }
 
-.trueText {
+td.trueText {
     color: white !important;
     background-color: green !important;
 }
@@ -266,5 +266,254 @@ p {
     form {
         gap: clamp(8px, 2vw, 12px);
         padding: clamp(8px, 2vw, 12px);
+    }
+}
+
+/* Trivia Card Styling */
+.trivia-container {
+    padding: 16px;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.trivia-card {
+    width: 100%;
+    padding: 24px;
+    border-radius: 24px;
+    border: 8px solid var(--color-border-primary);
+    background-color: var(--color-bg-active);
+    position: relative;
+}
+
+.trivia-card.true {
+    border-color: green;
+}
+
+.trivia-card.false {
+    border-color: red;
+}
+
+.trivia-card-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.trivia-statement {
+    font-size: clamp(20px, 5vw, 28px);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    text-align: center;
+    margin: 0;
+    padding: 16px;
+    border-radius: 16px;
+    background-color: var(--color-bg-header);
+}
+
+.trivia-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-true,
+.btn-false {
+    flex: 1;
+    min-width: 120px;
+    padding: 16px 24px;
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 600;
+    border: 3px solid var(--color-border-primary);
+    border-radius: 16px;
+    background-color: var(--color-bg-tab);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-true {
+    border-color: green;
+}
+
+.btn-true.selected {
+    background-color: green;
+    color: white;
+    font-weight: bold;
+}
+
+.btn-false {
+    border-color: red;
+}
+
+.btn-false.selected {
+    background-color: red;
+    color: white;
+    font-weight: bold;
+}
+
+.btn-true:hover,
+.btn-false:hover {
+    transform: scale(1.05);
+}
+
+.btn-true:active,
+.btn-false:active {
+    transform: scale(0.98);
+}
+
+.trivia-feedback {
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.trivia-feedback.correct {
+    background-color: rgba(0, 128, 0, 0.1);
+    border: 2px solid green;
+}
+
+.trivia-feedback.incorrect {
+    background-color: rgba(255, 0, 0, 0.1);
+    border: 2px solid red;
+}
+
+.feedback-text {
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: bold;
+    margin: 0 0 8px 0;
+    color: var(--color-text-primary);
+}
+
+.trivia-feedback.correct .feedback-text {
+    color: green;
+}
+
+.trivia-feedback.incorrect .feedback-text {
+    color: red;
+}
+
+.correct-answer {
+    font-size: clamp(16px, 3vw, 20px);
+    margin: 8px 0;
+    color: var(--color-text-primary);
+}
+
+.context {
+    font-size: clamp(14px, 3vw, 18px);
+    margin: 8px 0 0 0;
+    color: var(--color-text-primary);
+    font-style: italic;
+}
+
+.btn-next {
+    padding: 16px 24px;
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 600;
+    border: 2px solid var(--color-border-primary);
+    border-radius: 16px;
+    background-color: var(--color-bg-header);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 16px;
+}
+
+.btn-next:hover {
+    background-color: var(--color-bg-active);
+    transform: scale(1.05);
+}
+
+.btn-next:active {
+    transform: scale(0.98);
+}
+
+.results-container {
+    padding: 24px;
+    text-align: center;
+}
+
+.results-container h2 {
+    font-size: clamp(24px, 5vw, 32px);
+    margin-bottom: 16px;
+}
+
+.results-container > p {
+    font-size: clamp(18px, 4vw, 24px);
+    margin-bottom: 24px;
+}
+
+.missed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.missed-item {
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid var(--color-border-primary);
+    background-color: var(--color-bg-tab);
+    text-align: left;
+}
+
+.missed-item.true {
+    border-color: green;
+    background-color: rgba(0, 128, 0, 0.05);
+}
+
+.missed-item.false {
+    border-color: red;
+    background-color: rgba(255, 0, 0, 0.05);
+}
+
+.missed-item p {
+    margin: 8px 0;
+    font-size: clamp(14px, 3vw, 18px);
+}
+
+.missed-item .correct-answer {
+    color: green;
+    font-weight: bold;
+}
+
+.missed-item.false .correct-answer {
+    color: red;
+}
+
+.btn-retry {
+    padding: 16px 32px;
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 600;
+    border: 2px solid var(--color-border-primary);
+    border-radius: 16px;
+    background-color: var(--color-bg-header);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 80px;
+}
+
+.btn-retry:hover {
+    background-color: var(--color-bg-active);
+    transform: scale(1.05);
+}
+
+.btn-retry:active {
+    transform: scale(0.98);
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .btn-true,
+    .btn-false,
+    .btn-next,
+    .btn-retry {
+        min-height: 96px;
+        font-size: clamp(20px, 5vw, 28px);
     }
 }
