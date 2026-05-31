@@ -40,10 +40,14 @@
         let missedIndices = [];
 
         function updateProgress() {
-            const total = questions.length || 1;
-            const answered = Math.min(currentIndex + 1, total);
-            document.getElementById('progress').textContent = questions.length ? `Question ${answered} of ${questions.length}` : 'Loading questions...';
-            document.getElementById('progress-fill').style.width = questions.length ? `${(answered / total) * 100}%` : '0%';
+            if (!questions.length) {
+                document.getElementById('progress').textContent = 'Loading questions...';
+                document.getElementById('progress-fill').style.width = '0%';
+                return;
+            }
+            const answered = Math.min(currentIndex + 1, questions.length);
+            document.getElementById('progress').textContent = `Question ${answered} of ${questions.length}`;
+            document.getElementById('progress-fill').style.width = `${(answered / questions.length) * 100}%`;
         }
 
         function renderQuestion() {
@@ -161,7 +165,7 @@
             })
             .catch(error => {
                 console.error('Error loading trivia data:', error);
-                document.getElementById('loading-indicator').textContent = 'Unable to load questions.';
+                document.getElementById('loading-indicator').textContent = 'Unable to load questions. Please check your connection and try again.';
                 document.getElementById('trivia-container').innerHTML = '<p>Error loading questions. Please refresh the page.</p>';
             });
     </script>
