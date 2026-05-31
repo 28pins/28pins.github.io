@@ -45,21 +45,25 @@
                     <div class="trivia-card-inner">
                         <p class="trivia-statement">${question.statement}</p>
                         
-                        <h3 class="youth-said-heading">The Youth Said:</h3>
-                        <div class="trivia-buttons">
-                            <button class="btn-true ${isAnswered && userAnswers[currentIndex] === 'True' ? 'selected' : ''}" ${isAnswered ? 'disabled' : ''} onclick="answerQuestion('True')">True</button>
-                            <button class="btn-false ${isAnswered && userAnswers[currentIndex] === 'False' ? 'selected' : ''}" ${isAnswered ? 'disabled' : ''} onclick="answerQuestion('False')">False</button>
-                        </div>
-
                         ${isAnswered ? `
                             <div class="trivia-feedback ${isCorrect ? 'correct' : 'incorrect'}">
                                 <p class="feedback-text">${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</p>
                                 <p class="correct-answer">The answer is: <strong>${question.answer}</strong></p>
                                 <p class="context">${question.context}</p>
                             </div>
-                            <button class="btn-next" onclick="nextQuestion()">Next →</button>
                         ` : ''}
                     </div>
+                    
+                    <h3 class="youth-said-heading">The Youth Said:</h3>
+                    <br>
+                    <div class="trivia-buttons">
+                        <button class="btn-true ${isAnswered && userAnswers[currentIndex] === 'True' ? 'selected' : ''}" ${isAnswered ? 'disabled' : ''} onclick="answerQuestion('True')">True</button>
+                        <button class="btn-false ${isAnswered && userAnswers[currentIndex] === 'False' ? 'selected' : ''}" ${isAnswered ? 'disabled' : ''} onclick="answerQuestion('False')">False</button>
+                    </div>
+
+                    ${isAnswered ? `
+                        <button class="btn-next" onclick="nextQuestion()">Next →</button>
+                    ` : ''}
                 </div>
             `;
 

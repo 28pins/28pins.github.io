@@ -285,6 +285,8 @@ td.trueText {
     border: 8px solid var(--color-border-primary);
     background-color: var(--color-bg-active);
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .trivia-card.true {
@@ -295,14 +297,24 @@ td.trueText {
     border-color: red;
 }
 
-.trivia-card.correct-answer-border {
+.trivia-card.true.correct-answer-border {
     border-color: green !important;
-    border-width: 8px;
+    border-width: 10px !important;
 }
 
-.trivia-card.incorrect-answer-border {
+.trivia-card.true.incorrect-answer-border {
     border-color: red !important;
-    border-width: 8px;
+    border-width: 10px !important;
+}
+
+.trivia-card.false.correct-answer-border {
+    border-color: green !important;
+    border-width: 10px !important;
+}
+
+.trivia-card.false.incorrect-answer-border {
+    border-color: red !important;
+    border-width: 10px !important;
 }
 
 .trivia-card-inner {
@@ -326,7 +338,9 @@ td.trueText {
     display: flex;
     gap: 16px;
     justify-content: center;
-    flex-wrap: wrap;
+    flex-direction: column;
+    width: 100%;
+    margin: 0;
 }
 
 .youth-said-heading {
@@ -334,8 +348,8 @@ td.trueText {
     font-weight: 600;
     color: var(--color-text-primary);
     text-align: center;
-    margin: 0;
-    padding: 12px 0;
+    margin: 16px 0 12px 0;
+    padding: 0;
 }
 
 .btn-true,
@@ -444,6 +458,7 @@ td.trueText {
     cursor: pointer;
     transition: all 0.3s ease;
     margin-top: 16px;
+    width: 100%;
 }
 
 .btn-next:hover {
