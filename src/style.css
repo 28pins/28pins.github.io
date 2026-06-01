@@ -278,6 +278,48 @@ td.trueText {
     justify-content: center;
 }
 
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    margin: 12px 0 16px 0;
+    border-radius: 999px;
+    border: 2px solid var(--color-border-primary);
+    background-color: var(--color-bg-active);
+    overflow: hidden;
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    background-color: var(--color-primary-dark);
+    transition: width 0.3s ease;
+}
+
+.btn-back {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--color-border-primary);
+    border-radius: 16px;
+    background-color: var(--color-bg-header);
+    color: var(--color-text-primary);
+    font-size: clamp(16px, 3vw, 20px);
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+}
+
+.loading-indicator {
+    margin: 0 16px 16px 16px;
+    padding: 16px;
+    border: 2px solid var(--color-border-primary);
+    border-radius: 16px;
+    background-color: var(--color-bg-header);
+    text-align: center;
+    font-size: clamp(16px, 3vw, 20px);
+    font-weight: 600;
+}
+
 .trivia-card {
     width: 100%;
     padding: 24px;
