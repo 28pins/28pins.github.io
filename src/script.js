@@ -64,6 +64,7 @@ function populate(type) {
                         }
                     });
                     tabElement.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
                 tabScroller.appendChild(tabElement);
                 i++;
