@@ -5,7 +5,7 @@
             "location": "TBD",
             "prep": "N/A",
             "materials": "N/A",
-            "read_to_the_youth": "Welcome to the amazing race. Your goal is to complete all four gospel-themed games as quickly as possible and be the first group back here. After each game, there will be a chance for two (or more) people from your group to share their thoughts on how the game or something within the game relates to the gospel. You can't move on until you share.",
+            "read_to_the_youth": "Welcome to the Amazing Race. Your goal is to complete all four gospel-themed games as quickly as possible and be the first group back here. After each game, there will be a chance for two (or more) people from your group to share their thoughts on how the game or something within the game relates to the gospel. You can't move on until you share.",
             "instructions": "Gather tribe and split into three groups. Read the instructions to the youth, and start the race after answering questions, if any.",
             "answer": "N/A",
             "debrief": "N/A"
@@ -15,10 +15,10 @@
             "location": "TBD",
             "prep": "Gather number cards into a bag",
             "materials": "12 Number cards",
-            "read_to_the_youth": "For this game, you will each draw a card with an Old Testament number on it. For example, you might draw a card that says \"How many days did the creation take?\", which would be 7. Without talking or whispering, arrange yourselves in order from least to greatest number. Let me know when you are ready.",
-            "instructions": "Each person draws a card. The youth must arrange themselves in order from least to greatest. No talking or whispering allowed, except to tell the group leader that they are ready. When they are ready, check that the numbers are in size order according to the answer key (If there are fewer than 12 people, ignore the missing cards).",
+            "read_to_the_youth": "For this game, you will each draw a card with an Old Testament number on it. For example, you might draw a card that says \"How many days did the creation take?\", which would be 7. Without talking or whispering, arrange yourselves in order from least to greatest number. Let me know when you are finished.",
+            "instructions": "Each person draws a card. The youth must arrange themselves in order from least to greatest. No talking or whispering allowed, except to tell the group leader that they are finished. When they are finished, check that the numbers are in size order according to the answer key (If there are fewer than 12 people, ignore the missing cards).",
             "answer": "TODO",
-            "debrief": "Are there any numbers that surprise you? What do you think about the biggest one? Does anyone have any thoughts or questions about any of the numbers? How does this game relate to the gospel?"
+            "debrief": "Are there any numbers that surprise you? What do you think about the biggest one? Does anyone have any thoughts or questions about any of the numbers?"
         },
         {
             "name": "Pin the tail on Balaam's donkey",
@@ -26,17 +26,17 @@
             "prep": "Set the donkey upon the chalkboard ledge and remove any tails that are already on the donkey.",
             "materials": "Donkey poster, 5 tails with pins",
             "read_to_the_youth": "For this game, you will line up, and the first person will be blindfolded using a bandana. Then, everyone will take turns trying to poke the tail where it belongs on the donkey. Your group is done once someone has placed their tail in the correct spot.",
-            "instructions": "Ensure each person is correctly blindfolded before they start. The game ends once someone places a tail so the pin appears inside the red circle on the back of the poster.",
+            "instructions": "Ensure each person is correctly blindfolded before they start. The game ends once someone places a tail so the pin appears inside the red circle on the back of the poster or everyone has gone twice.",
             "answer": "N/A",
             "debrief": "Does anyone know the story of Balaam's donkey? What is one lesson we can learn from that story or from this game?"
         },
         {
             "name": "Move mountains",
             "location": "TBD Outside",
-            "prep": "If the towers are not assembled, put the pipe into the base. Set up the towers around 10 feet apart and place the inflatables in a pyramid on the first pole.",
+            "prep": "If the towers are not assembled, put the pipe into the base. Set up the towers around 10 feet apart and place the inflatables in a pyramid on the first pole with the largest on the bottom (the shark should be on top).",
             "materials": "5 inflatable rings, 3 PVC poles with bases",
-            "read_to_the_youth": "In life, we face a lot of metaphorical mountains that we need to move.  Sometimes, there are metaphorical sharks along the way, but overcoming is possible through Christ. For this game, you will work together to move the pyramid of rings from the first pole to the last pole. Only one ring at a time may be off of a pole, and in no case can a larger ring be on top of a smaller ring. If either rule is broken, you must return the rings to the starting pole and start again.",
-            "instructions": "The game is complete once all of the rings are on the last pole in the same order as they were on the first pole without the rules being broken.",
+            "read_to_the_youth": "In life, we face a lot of metaphorical mountains that we need to move.  Sometimes, there are metaphorical sharks along the way, but overcoming is possible through Christ. For this game, you will work together to move the pyramid of rings from the first pole to the last pole. Only one ring at a time may be moved off of a pole, and in no case can a larger ring be on top of a smaller ring. If either rule is broken, you must return the rings to the starting pole and start again.",
+            "instructions": "The game is complete once all of the rings are on the last pole in the same order as they were on the first pole without the rules being broken (the shark counts as the smallest ring).",
             "answer": "All 5 rings in height order on last pole",
             "debrief": "Did you ever get stuck while moving the mountain? How did you get through it? Jesus said that we can move mountains if we have faith. What do you think that means? How does this game relate to the gospel?"
         },
@@ -45,7 +45,7 @@
             "location": "TBD",
             "prep": "N/A",
             "materials": "N/A",
-            "read_to_the_youth": "For this game, you will work together to get all 12 questions correct in a row.  I will read a true or false question about the Old Testament.  If it is true, go to the right side of the room; go to the left if it is false. (ensure the youth know which side is which)  After reading the question, you will have a short time to deliberate; whichever side has the most people will count as your answer.",
+            "read_to_the_youth": "For this game, you will work together to get all 12 questions correct in a row.  I will read a true or false question about the Old Testament.  If it is true, go to the right side of the room; go to the left if it is false. (ensure the youth know which side is which)  After reading the question, you will have a short time to deliberate; whichever side has the most people will count as your answer.  If you miss any, you will have to repeat all of the cards.",
             "instructions": "If the youth get a card wrong, finish the deck and restart.  If there is a tie between both sides, they get the card wrong automatically.",
             "answer": "Click <a href=\"trivia.html\">here</a> for the interactive trivia cards.",
             "debrief": "How did your group do on the trivia questions? What questions surprised you? How does learning about the Old Testament relate to the gospel?"
