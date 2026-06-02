@@ -14,9 +14,9 @@
             "name": "Silent Number Order",
             "location": "TBD",
             "prep": "Gather number cards into a bag",
-            "materials": "12 Number cards",
+            "materials": "9 Number cards",
             "read_to_the_youth": "For this game, you will each draw a card with an Old Testament number on it. For example, you might draw a card that says \"How many days did the creation take?\", which would be 7. Without talking or whispering, arrange yourselves in order from least to greatest number. Let me know when you are finished.",
-            "instructions": "Each person draws a card. The youth must arrange themselves in order from least to greatest. No talking or whispering allowed, except to tell the group leader that they are finished. When they are finished, check that the numbers are in size order according to the answer key (If there are fewer than 12 people, ignore the missing cards).",
+            "instructions": "Each person draws a card. The youth must arrange themselves in order from least to greatest. No talking or whispering allowed, except to tell the group leader that they are finished. When they are finished, check that the numbers are in size order according to the answer key (If there are fewer than 9 people, ignore the missing cards).",
             "answer": "TODO",
             "debrief": "Are there any numbers that surprise you? What do you think about the biggest one? Does anyone have any thoughts or questions about any of the numbers?"
         },
@@ -24,9 +24,9 @@
             "name": "Pin the tail on Balaam's donkey",
             "location": "TBD Classroom",
             "prep": "Set the donkey upon the chalkboard ledge and remove any tails that are already on the donkey.",
-            "materials": "Donkey poster, 5 tails with pins",
+            "materials": "Donkey poster, tail with screw",
             "read_to_the_youth": "For this game, you will line up, and the first person will be blindfolded using a bandana. Then, everyone will take turns trying to poke the tail where it belongs on the donkey. Your group is done once someone has placed their tail in the correct spot.",
-            "instructions": "Ensure each person is correctly blindfolded before they start. The game ends once someone places a tail so the pin appears inside the red circle on the back of the poster or everyone has gone twice.",
+            "instructions": "Ensure each person is correctly blindfolded before they start. The game ends once someone places a tail so the screw appears inside the red circle on the back of the poster or everyone has gone twice.",
             "answer": "N/A",
             "debrief": "Does anyone know the story of Balaam's donkey? What is one lesson we can learn from that story or from this game?"
         },
