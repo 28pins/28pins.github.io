@@ -593,7 +593,7 @@ td.trueText {
     }
 }
 
-ol {
+ul {
     margin: 16px 0 16px 32px;
     padding: 0;
     background-color: var(--color-bg-header);
