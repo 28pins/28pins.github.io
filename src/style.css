@@ -593,9 +593,9 @@ td.trueText {
     }
 }
 
-ul {
-    margin: 16px 0 16px 32px;
-    padding: 0;
+#listOfNumbers {
+    margin: 16pt;
+    padding: 16pt;
     background-color: var(--color-bg-header);
     border-radius: 12px;
     font-size: clamp(16px, 4vw, 24px);
