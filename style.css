@@ -1,0 +1,13 @@
+/* Import a retro blocky font similar to the Mario games */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start 2P&display=swap');
+
+/* Apply the font to the whole page */
+body {
+	font-family: 'Press Start 2P', monospace;
+	font-size: 16px;
+	line-height: 1.4;
+	margin: 0;
+	padding: 0;
+	background-color: #fff;
+	color: #000;
+}
