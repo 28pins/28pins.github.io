@@ -24,21 +24,59 @@ function __makeRng(seed) {
 }
 
 /** Global deterministic RNG used for generic purposes (e.g., coin behavior). */
-let __globalSeed = 0x12345678;
+let __globalSeed = 0x1248; // Arbitrary default seed; can be changed for reproducibility
 // Persistent deterministic RNG – reuse the same generator for every call.
 let __rng = __makeRng(__globalSeed);
 function __random() {
     return __rng();
 }
 
-// Global coin counters across all pools. The lever (dialLevel) now only
-// influences the probability of exiting via an outlet; the total number of
-// coins in the system is driven toward a target count (targetCoins) one per
-// frame.
+const blockMono = [
+    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1],
+    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+    [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
+    [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1],
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+]
+
+const blockMonoWidth = blockMono[0].length;
+const blockMonoHeight = blockMono.length;
+
+const blockDuo = [
+    [0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0],
+    [1, 1, 2, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 2, 1, 2],
+    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2],
+    [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 2],
+    [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 2],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 2],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 2],
+    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 2],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 2],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 2],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 2],
+    [1, 1, 2, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 2, 1, 2],
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+]
+
+// Global coin counters across all pools
 let totalCoins = 0;
-let targetCoins = 30;
-const S = 2;
-const COIN_SCALE = 2;
+let targetCoins = 80;
+const S = 1.2;
+let COIN_SCALE = 2.5;
 
 function cubicBezier(t, firstControl, secondControl) {
     const inverseT = 1 - t;
@@ -80,6 +118,9 @@ class Coin {
     }
 
     update(deltaTime, bounds) {
+        //Adjust coin scale based on money supply (min 1.5, max 3.5)
+        COIN_SCALE = Math.max(1.5, Math.min(3.5, 2.5 + (totalCoins - targetCoins) * 0.02));
+        // Handle exit animation first.
         if (this.exiting) {
             this.exitProgress = Math.min(1, this.exitProgress + deltaTime / this.exitDuration);
             const exitCurve = cubicBezier(this.exitProgress, 0.15, 0.85);
@@ -98,9 +139,6 @@ class Coin {
                 remainingDistance -= segmentLength;
             }
             this.rotation += this.rotationSpeed * deltaTime;
-            // Keep opacity steady during exit animation; remove fade effect.
-            // const fadeProgress = Math.max(0, (this.exitProgress - 0.65) / 0.35);
-            // this.opacity = this.exitStartingOpacity * (1 - fadeProgress);
             this.opacity = this.exitStartingOpacity;
             this.velocityX = __random() * 2 - 1;
             if (this.exitProgress >= 1) this.exitComplete = true;
@@ -227,9 +265,11 @@ class Pool {
     leverX;
     leverY;
     targetDialLevel;
+    hasLever;
     coins;
     coinBounds;
     departureAccumulator;
+    maintenanceAccumulator;
     /**
      * Creates a new Pool instance.
      * @param {number} x - The x position of the pool on the canvas
@@ -238,10 +278,11 @@ class Pool {
      * @param {Array<number>} outlets - The list of outlet identifiers for the pool
      * @param {Array<number>} inverseOutlets - The list of inverse outlet identifiers for the pool
      * @param {string} name - The name of the pool
+     * @param {string} leverName - The name of the lever
      * @param {string} color - The color of the pool in rgba format
      * @param {number} dialLevel - The level of the dial (0 to 1)
      */
-    constructor(x, y, id, outlets, inverseOutlets, name, color, dialLevel = 0) {
+    constructor(x, y, id, outlets, inverseOutlets, name, leverName, color, dialLevel = 0) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -249,17 +290,22 @@ class Pool {
         this.outlets = outlets;
         this.inverseOutlets = inverseOutlets;
         this.name = name;
+        this.leverName = leverName;
+        this.hasLever = leverName !== 'NO-LEVER';
         this.color = color;
         this.dialLevel = dialLevel;
         this.targetDialLevel = dialLevel;
         this.coins = [];
         this.departureAccumulator = 0;
+        this.maintenanceAccumulator = 0;
         this.coinBounds = {
             left: this.x + 4 * S,
             right: this.x + 76 * S,
             top: this.y + 4 * S,
             bottom: this.y + 46 * S
         };
+        // Accumulator for coin loss (dispatch) in the print‑money pool (id===6).
+        this.lossAccumulator = 0;
         const leverAngle = (1 - (0.6 + (0.8 * this.dialLevel))) * Math.PI;
         this.leverX = this.x + 100 * S + (35 * S * Math.cos(leverAngle));
         this.leverY = this.y + 25 * S + (35 * S * Math.sin(leverAngle));
@@ -268,6 +314,31 @@ class Pool {
         return this.dialLevel;
     }
     update(deltaTime, pipeNetwork) {
+
+        this.maintenanceAccumulator += deltaTime;
+        const maintenanceCount = Math.floor(this.maintenanceAccumulator);
+        this.maintenanceAccumulator -= maintenanceCount;
+
+        if (this.id === 4) {
+            for (let second = 0; second < maintenanceCount; second++) {
+                const activeCoins = this.coins.filter((coin) => !coin.removing && !coin.transferred);
+                if (activeCoins.length <= targetCoins * 0.5) break;
+                activeCoins[0].removing = true;
+            }
+        }
+
+        if (this.id === 6) {
+            for (let second = 0; second < maintenanceCount; second++) {
+                if (__random() >= this.fillLevel) continue;
+                const inletX = this.x + 15 * S;
+                const newCoin = new Coin(inletX, this.y + 25 * S);
+                newCoin.opacity = 1;
+                newCoin.hasEnteredPool = true;
+                this.coins.push(newCoin);
+                totalCoins++;
+                this.dispatchCoins(1, pipeNetwork);
+            }
+        }
 
         // Global coin limit applies to the whole system. Only the first pool (id===0) is allowed to spawn new coins.
         if (this.id === 0 && totalCoins < targetCoins) {
@@ -282,14 +353,6 @@ class Pool {
             newCoin.velocityY = 30;
             this.coins.push(newCoin);
             totalCoins++;
-        } else if (totalCoins > targetCoins) {
-            // If we have more coins than the global target, mark one for removal from the first pool.
-            if (this.id === 0) {
-                const coinToRemove = this.coins.find((c) => !c.removing && !c.transferred);
-                if (coinToRemove) {
-                    coinToRemove.removing = true;
-                }
-            }
         }
 
         // Count active (non‑removing, non‑transferred) coins in this pool for departure logic.
@@ -297,8 +360,10 @@ class Pool {
         this.departureAccumulator += activeCoinCount * 0.005;
         const departureCount = Math.floor(this.departureAccumulator);
         this.departureAccumulator -= departureCount;
-        const dispatchedCount = this.dispatchCoins(departureCount, pipeNetwork);
-        this.departureAccumulator += departureCount - dispatchedCount;
+        // A rejected probability trial is intentionally not carried forward.
+        // Banking rejected trials makes a small dial change release the whole
+        // stored backlog at once.
+        this.dispatchCoins(departureCount, pipeNetwork);
         // Keep a reference to the coin list before we start processing this tick.
         const beforeCoins = this.coins.slice();
 
@@ -334,8 +399,12 @@ class Pool {
         const fillLevel = Math.max(0, Math.min(1, this.fillLevel));
         let dispatchedCount = 0;
         for (let departure = 0; departure < departureCount; departure++) {
-            // Determine whether to use normal outlets (probability = fillLevel) or inverse outlets.
-            let useOutlet = Math.random() < fillLevel;
+            // A pool with only alternate outlets uses the dial as its export rate.
+            if (this.outlets.length === 0 && this.inverseOutlets.length > 0
+                && __random() >= fillLevel) continue;
+
+            // Higher fill levels favor the alternate outlets; 1% still sends 1% through the main outlets.
+            let useOutlet = Math.random() >= fillLevel;
             // If the chosen group has no ports, fall back to the other group.
             if (useOutlet && this.outlets.length === 0) continue; // No available ports in the chosen group.
             if (!useOutlet && this.inverseOutlets.length === 0) continue; // No available ports in the chosen group.
@@ -496,60 +565,68 @@ class Pool {
             ctx.fillRect(ix, iy + 5.5 * S, 10 * S, 0.5 * S);
             ctx.restore();
         }
-        // Lever on the side of the pool to set and show `dialLevel`
-        // - Rectangle as vertical lever holder
-        // - Rectangle as track
-        // - Tilting rectangle as lever, tilted based on `dialLevel`
-        // - Circle as knob on the end of the lever
-        // - DialLevel as pct text on the lever holder
-        // Smooth animation for dial level
-        this.dialLevel = Math.round(this.dialLevel * 100) / 100; // Round to 2 decimal places
-        this.targetDialLevel = Math.round(this.targetDialLevel * 100) / 100; // Round to 2 decimal places
-        const angleDiff = this.targetDialLevel - this.dialLevel;
-        this.dialLevel += angleDiff * 0.5; // Smooth transition factor
-        if (this.dialLevel < 0) this.dialLevel = 0;
-        if (this.dialLevel > 1) this.dialLevel = 1;
-        const leverAngle = (1 - (0.6 + (0.8 * this.dialLevel))) * Math.PI;
-        this.leverX = this.x + 100 * S + (35 * S * Math.cos(leverAngle));
-        this.leverY = this.y + 25 * S + (35 * S * Math.sin(leverAngle));
+        if (this.hasLever) {
+            // Lever on the side of the pool to set and show `dialLevel`
+            // - Rectangle as vertical lever holder
+            // - Rectangle as track
+            // - Tilting rectangle as lever, tilted based on `dialLevel`
+            // - Circle as knob on the end of the lever
+            // - DialLevel as pct text on the lever holder
+            // Smooth animation for dial level
+            this.dialLevel = Math.round(this.dialLevel * 100) / 100; // Round to 2 decimal places
+            this.targetDialLevel = Math.round(this.targetDialLevel * 100) / 100; // Round to 2 decimal places
+            const angleDiff = this.targetDialLevel - this.dialLevel;
+            this.dialLevel += angleDiff * 0.5; // Smooth transition factor
+            if (this.dialLevel < 0) this.dialLevel = 0;
+            if (this.dialLevel > 1) this.dialLevel = 1;
+            const leverAngle = (1 - (0.6 + (0.8 * this.dialLevel))) * Math.PI;
+            this.leverX = this.x + 100 * S + (35 * S * Math.cos(leverAngle));
+            this.leverY = this.y + 25 * S + (35 * S * Math.sin(leverAngle));
 
-        // ctx.beginPath();
-        // ctx.fillStyle = 'rgb(70, 70, 70)';
-        // ctx.fillRect(this.x + 80 * S, this.y + 25 * S, 30 * S, 26 * S);
+            // ctx.beginPath();
+            // ctx.fillStyle = 'rgb(70, 70, 70)';
+            // ctx.fillRect(this.x + 80 * S, this.y + 25 * S, 30 * S, 26 * S);
 
-        ctx.beginPath();
-        ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-        ctx.arc(this.x + 100 * S, this.y + 25 * S, 10 * S, Math.PI * 1.5, Math.PI / 2);
-        ctx.fill();
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+            ctx.arc(this.x + 100 * S, this.y + 25 * S, 10 * S, Math.PI * 1.5, Math.PI / 2);
+            ctx.fill();
 
-        ctx.beginPath();
-        ctx.moveTo(this.x + 100 * S, this.y + 25 * S);
-        ctx.lineTo(this.leverX, this.leverY);
-        ctx.lineWidth = 4 * S;
-        ctx.strokeStyle = 'rgb(125, 125, 125)';
-        ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(this.x + 100 * S, this.y + 25 * S);
+            ctx.lineTo(this.leverX, this.leverY);
+            ctx.lineWidth = 4 * S;
+            ctx.strokeStyle = 'rgb(125, 125, 125)';
+            ctx.stroke();
 
-        ctx.beginPath();
-        ctx.arc(this.leverX, this.leverY, 5 * S, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgb(80, 80, 80)';
-        ctx.fill();
+            ctx.beginPath();
+            ctx.arc(this.leverX, this.leverY, 5 * S, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgb(80, 80, 80)';
+            ctx.fill();
 
-        ctx.beginPath();
-        ctx.fillStyle = this.color;
-        ctx.arc(this.x + 101 * S, this.y + 25 * S, 5 * S, Math.PI * 1.5, Math.PI / 2);
-        ctx.fill();
+            ctx.beginPath();
+            ctx.fillStyle = this.color;
+            ctx.arc(this.x + 101 * S, this.y + 25 * S, 5 * S, Math.PI * 1.5, Math.PI / 2);
+            ctx.fill();
 
-        ctx.beginPath();
-        ctx.strokeStyle = 'rgb(255, 255, 255)';
-        ctx.lineWidth = S / 2;
-        ctx.moveTo(this.x + 100 * S + (10 * S * Math.cos(leverAngle)), this.y + 25 * S + (10 * S * Math.sin(leverAngle)));
-        ctx.lineTo(this.x + 100 * S + (5 * S * Math.cos(leverAngle)), this.y + 25 * S + (5 * S * Math.sin(leverAngle)));
-        ctx.stroke();
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgb(255, 255, 255)';
+            ctx.lineWidth = S / 2;
+            ctx.moveTo(this.x + 100 * S + (10 * S * Math.cos(leverAngle)), this.y + 25 * S + (10 * S * Math.sin(leverAngle)));
+            ctx.lineTo(this.x + 100 * S + (5 * S * Math.cos(leverAngle)), this.y + 25 * S + (5 * S * Math.sin(leverAngle)));
+            ctx.stroke();
 
-        ctx.beginPath();
-        ctx.font = `${6 * S}px 'Press Start 2P', sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.fillText(`${Math.round(this.dialLevel * 100)}`, this.x + 110 * S, this.y + 48 * S);
+            ctx.beginPath(); //Draw the lever name text above the lever top
+            ctx.font = `${6 * S}px 'Press Start 2P', sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'rgb(0, 0, 0)';
+            ctx.fillText(`${this.leverName}`, this.x + 100 * S + (35 * S * Math.cos(leverAngle)), (this.y + 25 * S + (35 * S * Math.sin(leverAngle)) + (this.fillLevel < 0.25 ? 10 * S : -5 * S)));
+
+            ctx.beginPath();
+            ctx.font = `${6 * S}px 'Press Start 2P', sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.fillText(`${Math.round(this.dialLevel * 100)}`, this.x + 110 * S, this.y + 48 * S);
+        }
 
         // Pool round rect, filled with inset to `fillPct` percent
         ctx.beginPath();
@@ -572,14 +649,33 @@ class Pool {
         ctx.roundRect(this.x, this.y, 100 * S, 50 * S, 12 * S);
         ctx.stroke();
 
-        // Label with name, to the right of the last inlet and above the pool
-        const labelX = this.x + 10 * S + ((this.inlets.length + 1) * 30 * S);
-        const labelY = this.y - 3 * S;
-        ctx.beginPath();
+        // Keep long pool titles in the open space above the pool.
         ctx.font = `${10 * S}px 'Press Start 2P', sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillStyle = 'rgb(0, 0, 0)';
-        ctx.fillText(this.name, labelX, labelY);
+        const titleStartX = this.x + 10 * S + ((this.inlets.length + 1) * 30 * S);
+        const titleEndX = this.hasLever ? this.x + 88 * S : this.x + 120 * S;
+        const titleMaxWidth = Math.max(40 * S, titleEndX - titleStartX);
+        const titleWords = this.name.split(/\s+/);
+        const titleLines = [];
+        let titleLine = '';
+        for (const word of titleWords) {
+            const candidate = titleLine ? `${titleLine} ${word}` : word;
+            if (titleLine && ctx.measureText(candidate).width > titleMaxWidth) {
+                titleLines.push(titleLine);
+                titleLine = word;
+            } else {
+                titleLine = candidate;
+            }
+        }
+        if (titleLine) titleLines.push(titleLine);
+
+        const labelX = (titleStartX + titleEndX) / 2;
+        const titleLineHeight = 9 * S;
+        const labelY = this.y - 3 * S - (titleLines.length - 1) * titleLineHeight;
+        titleLines.forEach((line, lineIndex) => {
+            ctx.fillText(line, labelX, labelY + lineIndex * (titleLineHeight + 2 * S));
+        });
     }
 }
 
@@ -972,11 +1068,6 @@ class PipeNetwork {
         }
 
 
-        // Validate paths: must be clear, not overlapping existing routes, and have no U‑turns.
-        const pathScore = (path) => {
-            return 1 + (this.pathIsClear(path, obstacles) ? -2 : 1) + (this.pathOverlapsExisting(path) ? -4 : 1) + (this.pathHasUTurn(path) ? -1 : 1);
-        };
-
         // Direct L‑shaped path.
         const directPath = this.compactPath([
             { x: startX, y: startY },
@@ -986,26 +1077,27 @@ class PipeNetwork {
             { x: endX, y: endY }
         ]);
 
+        // Prefer the direct route whenever it is available.
+        const pathIsUsable = (path) => (
+            this.pathIsClear(path, obstacles)
+            && !this.pathOverlapsExisting(path)
+            && !this.pathHasUTurn(path)
+        );
+        if (pathIsUsable(directPath)) return directPath;
+
         // Gather all candidates: direct, side, middle, and deterministic variants.
         const allCandidates = [directPath, ...sideCandidates, ...middleCandidates, ...deterministicCandidates, ...fractionCandidates, ...extraStubCandidates];
-        const validPaths = allCandidates.filter((path) => pathScore(path) > 0);
+        const validPaths = allCandidates.filter(pathIsUsable);
         if (validPaths.length > 0) {
-            // Score each path: higher score for fewer points (simpler routes).
-            const scored = validPaths.map(p => ({ path: p, score: -p.length }));
-            const maxScore = Math.max(...scored.map(s => s.score));
-            const topScored = scored.filter(s => s.score === maxScore).map(s => s.path);
-            if (topScored && topScored.length > 0 && topScored[0].score > 0) {
-                // Among the top‑scored paths, select the shortest by geometric length.
-                return topScored.reduce((shortest, path) => {
-                    const pathLength = path.reduce((total, pt, i) => (
-                        i === 0 ? total : total + Math.hypot(pt.x - path[i - 1].x, pt.y - path[i - 1].y)
-                    ), 0);
-                    const shortestLength = shortest.reduce((total, pt, i) => (
-                        i === 0 ? total : total + Math.hypot(pt.x - shortest[i - 1].x, pt.y - shortest[i - 1].y)
-                    ), 0);
-                    return pathLength < shortestLength ? path : shortest;
-                });
-            }
+            return validPaths.reduce((shortest, path) => {
+                const pathLength = path.reduce((total, pt, i) => (
+                    i === 0 ? total : total + Math.hypot(pt.x - path[i - 1].x, pt.y - path[i - 1].y)
+                ), 0);
+                const shortestLength = shortest.reduce((total, pt, i) => (
+                    i === 0 ? total : total + Math.hypot(pt.x - shortest[i - 1].x, pt.y - shortest[i - 1].y)
+                ), 0);
+                return pathLength < shortestLength ? path : shortest;
+            });
         }
 
         // No valid pre‑generated candidates – try a few deterministic, orthogonal random paths.
@@ -1031,13 +1123,9 @@ class PipeNetwork {
             ]);
             randomCandidates.push(randPath);
         }
-        const randomValid = randomCandidates.filter((path) => pathScore(path) > 0);
+        const randomValid = randomCandidates.filter(pathIsUsable);
         if (randomValid.length > 0) {
-            // Apply same scoring/shortest logic to random valid paths.
-            const scoredRand = randomValid.map(p => ({ path: p, score: -p.length }));
-            const maxScoreRand = Math.max(...scoredRand.map(s => s.score));
-            const topRand = scoredRand.filter(s => s.score === maxScoreRand).map(s => s.path);
-            return topRand.reduce((shortest, path) => {
+            return randomValid.reduce((shortest, path) => {
                 const pathLength = path.reduce((total, pt, i) => (
                     i === 0 ? total : total + Math.hypot(pt.x - path[i - 1].x, pt.y - path[i - 1].y)
                 ), 0);
@@ -1048,16 +1136,18 @@ class PipeNetwork {
             });
         }
 
-        // As a final safety net, fall back to the original deterministic path.
-        return this.compactPath([
-            { x: startX, y: startY },
-            { x: startX, y: outletStubY },
-            { x: startX, y: maxPoolBottom + 40 * S },
-            { x: maxPoolRight + 40 * S, y: maxPoolBottom + 40 * S },
-            { x: maxPoolRight + 40 * S, y: inletStubY },
-            { x: endX, y: inletStubY },
-            { x: endX, y: endY }
-        ]);
+        // Prefer a generated random route over the bottom-right safety route,
+        // even when every random candidate intersects an existing pipe.
+        return randomCandidates.reduce((shortest, path) => {
+            const pathLength = path.reduce((total, pt, i) => (
+                i === 0 ? total : total + Math.hypot(pt.x - path[i - 1].x, pt.y - path[i - 1].y)
+            ), 0);
+            const shortestLength = shortest.reduce((total, pt, i) => (
+                i === 0 ? total : total + Math.hypot(pt.x - shortest[i - 1].x, pt.y - shortest[i - 1].y)
+            ), 0);
+            return pathLength < shortestLength ? path : shortest;
+        });
+
     }
 
     /** Move a coin from its source pool to the destination pool.
@@ -1155,17 +1245,53 @@ class PipeNetwork {
     }
 }
 
-const pools = [new Pool(250, 250, 0, [1], [1, 1], 'Test Pool', 'rgba(200, 0, 0)', 0.5),
-new Pool(450, 750, 1, [0], [], 'Second Pooll', 'rgba(0, 0, 200)', 0.25)];
+const pools = [
+    new Pool(20, 80, 0, [1], [8], 'Income', 'Taxes', 'rgba(200, 0, 0)', 0.5),
+    new Pool(20, 190, 1, [2], [6, 7], 'Net Income', 'Interest', 'rgba(0, 0, 200)', 0.5),
+    new Pool(20, 320, 2, [3], [], 'Consumption', 'NO-LEVER', 'rgba(0, 200, 0)', 0),
+    new Pool(20, 420, 3, [5], [4], 'Total Spending', 'Imports', 'rgba(200, 200, 0)', 0.5),
+    new Pool(200, 460, 4, [], [5], 'Foreign Balance', 'Exports', 'rgba(200, 0, 200)', 0.5),
+    new Pool(20, 600, 5, [0], [], 'National Income', 'NO-LEVER', 'rgba(0, 200, 200)', 0.5),
+    new Pool(200, 60, 6, [], [1, 7], 'Print Money', 'Rate', 'rgba(100, 100, 100)', 0.5),
+    new Pool(200, 190, 7, [3], [], 'Investment', 'NO-LEVER', 'rgba(150, 150, 0,)', 0.5),
+    new Pool(220, 330, 8, [5], [], 'Government Spending', 'NO-LEVER', 'rgba(0, 150, 150)', 0.5)
+];
+
 // The following UI code only runs in a browser environment.
 if (typeof document !== 'undefined') {
     const pipeNetwork = new PipeNetwork(pools);
     const canvas = document.getElementById('c');
+    const logicalCanvasWidth = canvas.width;
+    const logicalCanvasHeight = canvas.height;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const devicePixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    const canvasScaleX = viewportWidth / logicalCanvasWidth;
+    const canvasScaleY = viewportHeight / logicalCanvasHeight;
+    canvas.width = viewportWidth * devicePixelRatio;
+    canvas.height = viewportHeight * devicePixelRatio;
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
     const ctx = canvas.getContext('2d');
+    ctx.setTransform(
+        canvasScaleX * devicePixelRatio,
+        0,
+        0,
+        canvasScaleY * devicePixelRatio,
+        0,
+        0
+    );
+
+    function getCanvasPoint(event) {
+        const bounds = canvas.getBoundingClientRect();
+        return {
+            x: (event.clientX - bounds.left) / bounds.width * logicalCanvasWidth,
+            y: (event.clientY - bounds.top) / bounds.height * logicalCanvasHeight
+        };
+    }
 
     setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        pipeNetwork.rebuild();
         pipeNetwork.draw(ctx);
         pipeNetwork.drawTravelingCoins(ctx);
         for (const pool of pools) {
@@ -1173,35 +1299,118 @@ if (typeof document !== 'undefined') {
             pool.draw(ctx);
         }
         pipeNetwork.drawOpeningEdges(ctx);
+        // ---- Economy scoring ----
+        // Score broad activity, policy costs, public liquidity, and macro stability.
+        const foreignBalanceCoins = pools.find(pool => pool.name === 'Foreign Balance')?.coins.length || 0;
+        const printMoneyCoins = pools.find(pool => pool.name === 'Print Money')?.coins.length || 0;
+        const totalCoinsInCirculation = Math.max(0,
+            pools.reduce((sum, pool) => sum + pool.coins.length, 0) - foreignBalanceCoins - printMoneyCoins
+        );
+
+        // Primary pools we care about for the health metric.
+        const investmentPool = pools.find(pool => pool.name === 'Investment');
+        const consumptionPool = pools.find(pool => pool.name === 'Consumption');
+        const foreignBalancePool = pools.find(pool => pool.name === 'Foreign Balance');
+        const govSpendingPool = pools.find(pool => pool.name === 'Government Spending');
+
+        const investmentCoins = investmentPool?.coins.length || 0;
+        const consumptionCoins = consumptionPool?.coins.length || 0;
+        const exportCoins = foreignBalancePool?.coins.length || 0;
+        const govCashCoins = govSpendingPool?.coins.length || 0;
+        const normalize = (value) => Math.min(1, 4 * value / targetCoins);
+        const taxesScore = 1 - (pools.find(pool => pool.name === 'Income')?.dialLevel || 0);
+        const interestScore = 1 - (pools.find(pool => pool.name === 'Net Income')?.dialLevel || 0);
+        const investmentScore = normalize(investmentCoins);
+        const consumptionScore = normalize(consumptionCoins);
+        const exportScore = normalize(exportCoins);
+        const governmentCashScore = normalize(govCashCoins);
+
+        // These are priorities, not equal claims on the economy: investment and
+        // consumption matter most, while low taxes and interest rates help less.
+        const productiveScore = (
+            taxesScore * 0.1
+            + interestScore * 0.01
+            + investmentScore * 0.28
+            + consumptionScore * 0.29
+            + exportScore * 0.17
+            + governmentCashScore * 0.15
+        );
+
+        const inflationRate = Math.max(0, totalCoinsInCirculation - targetCoins) / targetCoins;
+        const recessionRate = Math.max(0, targetCoins - totalCoinsInCirculation) / targetCoins;
+        // Stability is deliberately harsh: either monetary excess or shortage
+        // can overwhelm otherwise healthy activity.
+        const stabilityMultiplier = Math.max(0, 1 - Math.min(1, inflationRate * 1.8 + recessionRate * 1.5));
+        const foreignBalanceMultiplier = exportCoins === 0 && foreignBalancePool?.dialLevel > 0.1 ? 0.5 : 1;
+        const governmentCashMultiplier = govCashCoins === 0 ? 0.35 : 1;
+        const economicHealthScore = Math.round(
+            Math.max(0, Math.min(1000,
+                productiveScore * stabilityMultiplier * foreignBalanceMultiplier * governmentCashMultiplier * 1000
+            ))
+        );
+
+        const strugglingComponents = [];
+        if (taxesScore < 0.25) strugglingComponents.push(`taxes are too high`);
+        if (investmentScore < 0.2) strugglingComponents.push('investment is weak');
+        if (consumptionScore < 0.2) strugglingComponents.push('consumption is weak');
+        if (exportScore < 0.2) strugglingComponents.push(`exports are weak`);
+        if (inflationRate > 0.15) strugglingComponents.push('inflation is severe');
+        if (recessionRate > 0.15) strugglingComponents.push('the economy is in recession');
+        if (foreignBalanceMultiplier < 1) strugglingComponents.push('foreign balance is poor');
+        if (governmentCashMultiplier < 1) strugglingComponents.push('government cash is low');
+        if (stabilityMultiplier < 0.5) strugglingComponents.push('the economy is unstable');
+        if (economicHealthScore < 400 && strugglingComponents.length === 0) strugglingComponents.push('overall economic health is poor');
+        const warningMessage = strugglingComponents.length > 0
+            ? `Warning: ${strugglingComponents[Math.floor(new Date().getSeconds() / 3) % strugglingComponents.length]}` //Rotate every 3 seconds
+            : 'Fiscally healthy.';
+
+        ctx.font = `${10 * S}px 'Press Start 2P', sans-serif`;
+        ctx.textAlign = 'right';
+        ctx.fillStyle = 'rgb(0, 0, 0)';
+        ctx.fillText(`Economy Health: ${economicHealthScore}`, 390, 650);
+        ctx.font = `${6 * S}px 'Press Start 2P', sans-serif`;
+        ctx.fillText(warningMessage, 390, 680);
     }, 1000 / 24);
 
-    canvas.addEventListener("mousedown", function (event) {
+    canvas.addEventListener("pointerdown", function (event) {
+        event.preventDefault();
         // If mouse is over a pool's lever, start dragging the lever
         for (const pool of pools) {
+            if (!pool.hasLever) continue;
             const leverAngle = (1 - (0.6 + (0.8 * pool.dialLevel))) * Math.PI;
             const leverX = pool.x + 100 * S + (35 * S * Math.cos(leverAngle));
             const leverY = pool.y + 25 * S + (35 * S * Math.sin(leverAngle));
-            const dx = event.offsetX - leverX;
-            const dy = event.offsetY - leverY;
+            const pointer = getCanvasPoint(event);
+            const pointerX = pointer.x;
+            const pointerY = pointer.y;
+            const dx = pointerX - leverX;
+            const dy = pointerY - leverY;
             if (Math.sqrt(dx * dx + dy * dy) < 10 * S) {
                 // Start dragging this lever
-                canvas.addEventListener("mousemove", onMouseMove);
-                canvas.addEventListener("mouseup", onMouseUp);
+                canvas.setPointerCapture(event.pointerId);
+                canvas.addEventListener("pointermove", onMouseMove);
+                canvas.addEventListener("pointerup", onMouseUp);
+                canvas.addEventListener("pointercancel", onMouseUp);
                 function onMouseMove(event) {
-                    if (event.buttons === 0) {
-                        onMouseUp();
-                        return;
-                    }
-                    const yTL = 1 - ((event.offsetY - (pool.y + 25 * S)) / (35 * S));
-                    const xTL = 1 - ((event.offsetX - (pool.x + 100 * S)) / (35 * S));
-                    pool.targetDialLevel = (yTL);
+                    event.preventDefault();
+                    const pointer = getCanvasPoint(event);
+                    const pointerX = pointer.x;
+                    const pointerY = pointer.y;
+                    const yTL = 1 - ((pointerY - (pool.y + 25 * S)) / (35 * S));
+                    const xTL = 1 - ((pointerX - (pool.x + 100 * S)) / (35 * S));
+                    const adjXTL = pool.targetDialLevel > 0.5 ? xTL : -xTL; // Adjust xTL based on current targetDialLevel
+                    pool.targetDialLevel = (yTL + (0.1 * adjXTL));
                     if (pool.targetDialLevel < 0) pool.targetDialLevel = 0;
                     if (pool.targetDialLevel > 1) pool.targetDialLevel = 1;
                     pool.targetDialLevel = Math.round(pool.targetDialLevel * 100) / 100; // Round to 2 decimal places
                 }
                 function onMouseUp() {
-                    canvas.removeEventListener("mousemove", onMouseMove);
-                    canvas.removeEventListener("mouseup", onMouseUp);
+                    canvas.removeEventListener("pointermove", onMouseMove);
+                    canvas.removeEventListener("pointerup", onMouseUp);
+                    canvas.removeEventListener("pointercancel", onMouseUp);
+                    if (canvas.hasPointerCapture(event.pointerId)) {
+                        canvas.releasePointerCapture(event.pointerId);
+                    }
                     console.log(`Final targetDialLevel for pool ${pool.id}: ${pool.targetDialLevel}`);
                 }
                 break;
