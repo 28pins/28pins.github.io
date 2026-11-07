@@ -1514,7 +1514,7 @@ if (typeof document !== 'undefined') {
         ctx.fillText(`${midDisplayedHealth}`, 196, (chartTop + chartBottom) / 2 + 3);
         ctx.fillText(`${Math.round(minDisplayedHealth)}`, 196, chartBottom);
         ctx.restore();
-    }, 1000 / 30;
+    }, 1000 / 30);
 
     canvas.addEventListener("pointerdown", function (event) {
         event.preventDefault();
