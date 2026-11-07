@@ -1443,7 +1443,7 @@ if (typeof document !== 'undefined') {
         if (healthLevels.length > 1000) {
             healthLevels.shift();
         }
-        const smoothWindow = 5;
+        const smoothWindow = 12;
         const smoothedHealthLevels = healthLevels.map((value, index) => {
             const start = Math.max(0, index - Math.floor(smoothWindow / 2));
             const end = Math.min(healthLevels.length, index + Math.ceil(smoothWindow / 2));
@@ -1461,7 +1461,7 @@ if (typeof document !== 'undefined') {
             maxGlobalScore = Math.round(maxDisplayedHealth);
         }
         ctx.save();
-        ctx.filter = 'blur(1px)';
+        ctx.filter = 'blur(2px)';
         let hasDrawnMaxHealth = false;
         for (let i = 0; i < smoothedHealthLevels.length - 1; i++) {
             const x1 = 200 + (i * 0.1);
