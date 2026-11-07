@@ -24,13 +24,19 @@ function __makeRng(seed) {
 }
 
 /** Global deterministic RNG used for generic purposes (e.g., coin behavior). */
-let __globalSeed = 0x1248; // Arbitrary default seed; can be changed for reproducibility
+const __seedFromUrl = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('seed')
+    : null;
+let __globalSeed = 5
 // Persistent deterministic RNG – reuse the same generator for every call.
 let __rng = __makeRng(__globalSeed);
 function __random() {
     return __rng();
 }
 
+let healthX = 0;
+let healthLevels = [];
+let isPaused = false;
 const blockMono = [
     [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
     [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
@@ -76,7 +82,11 @@ const blockDuo = [
 let totalCoins = 0;
 let targetCoins = 80;
 const S = 1.2;
+let maxGlobalScore = 0;
 let COIN_SCALE = 2.5;
+const STARTING_COIN_SCALE = 2.5;
+const MIN_COIN_SCALE = 0.5;
+const MAX_COIN_SCALE = 10;
 
 function cubicBezier(t, firstControl, secondControl) {
     const inverseT = 1 - t;
@@ -90,11 +100,11 @@ class Coin {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.velocityX = (Math.random() - 0.5) * 70;
-        this.velocityY = (Math.random() - 0.5) * 70;
-        this.maxVelocity = 200 + Math.random() * 75;
-        this.rotation = Math.random() * Math.PI * 2;
-        this.rotationSpeed = (Math.random() - 0.5) * 8;
+        this.velocityX = (__random() - 0.5) * 70;
+        this.velocityY = (__random() - 0.5) * 70;
+        this.maxVelocity = 200 + __random() * 75;
+        this.rotation = __random() * Math.PI * 2;
+        this.rotationSpeed = (__random() - 0.5) * 8;
         // Initialise acceleration timing used in update().
         this.accelerationTime = 0;
         this.accelerationDuration = 0.8;
@@ -118,8 +128,15 @@ class Coin {
     }
 
     update(deltaTime, bounds) {
-        //Adjust coin scale based on money supply (min 1.5, max 3.5)
-        COIN_SCALE = Math.max(1.5, Math.min(3.5, 2.5 + (totalCoins - targetCoins) * 0.02));
+        // Keep every coin the same size while adjusting the shared size to money supply.
+        const supply = Math.max(1, totalCoins);
+        COIN_SCALE = supply >= targetCoins
+            ? STARTING_COIN_SCALE - ((supply - targetCoins) / (targetCoins * 4))
+            * (STARTING_COIN_SCALE - MIN_COIN_SCALE)
+            : STARTING_COIN_SCALE + ((targetCoins - supply) / (targetCoins - 1))
+            * (MAX_COIN_SCALE - STARTING_COIN_SCALE);
+        COIN_SCALE = Math.max(MIN_COIN_SCALE, Math.min(MAX_COIN_SCALE, COIN_SCALE));
+        this.radius = 2 * S * COIN_SCALE;
         // Handle exit animation first.
         if (this.exiting) {
             this.exitProgress = Math.min(1, this.exitProgress + deltaTime / this.exitDuration);
@@ -319,10 +336,18 @@ class Pool {
         const maintenanceCount = Math.floor(this.maintenanceAccumulator);
         this.maintenanceAccumulator -= maintenanceCount;
 
-        if (this.id === 4) {
+        if (this.id === 4 || this.id === 6) {
             for (let second = 0; second < maintenanceCount; second++) {
                 const activeCoins = this.coins.filter((coin) => !coin.removing && !coin.transferred);
-                if (activeCoins.length <= targetCoins * 0.5) break;
+                if (activeCoins.length <= totalCoins * 0.2) break;
+                activeCoins[0].removing = true;
+            }
+        }
+
+        if (this.id === 8) {
+            for (let second = 0; second < maintenanceCount; second++) {
+                const activeCoins = this.coins.filter((coin) => !coin.removing && !coin.transferred);
+                if (activeCoins.length === 0 || __random() >= 0.01) continue;
                 activeCoins[0].removing = true;
             }
         }
@@ -341,7 +366,7 @@ class Pool {
         }
 
         // Global coin limit applies to the whole system. Only the first pool (id===0) is allowed to spawn new coins.
-        if (this.id === 0 && totalCoins < targetCoins) {
+        if (this.id === 0 && totalCoins < targetCoins && ((__random() < (1000 / window.performance.now() || 100000)) || window.performance.now() < 5000)) {
             const inletCount = Math.max(1, this.inlets.length);
             const inletIndex = this.coins.length % inletCount;
             const inletX = this.x + 15 * S + inletIndex * 20 * S;
@@ -404,7 +429,7 @@ class Pool {
                 && __random() >= fillLevel) continue;
 
             // Higher fill levels favor the alternate outlets; 1% still sends 1% through the main outlets.
-            let useOutlet = Math.random() >= fillLevel;
+            let useOutlet = __random() >= fillLevel;
             // If the chosen group has no ports, fall back to the other group.
             if (useOutlet && this.outlets.length === 0) continue; // No available ports in the chosen group.
             if (!useOutlet && this.inverseOutlets.length === 0) continue; // No available ports in the chosen group.
@@ -412,7 +437,7 @@ class Pool {
             if (ports.length === 0) continue; // No available ports at all.
 
             // Choose a port uniformly within the selected group.
-            const portIndex = Math.floor(Math.random() * ports.length);
+            const portIndex = Math.floor(__random() * ports.length);
             // Retrieve the concrete route for this selection.
             const route = pipeNetwork ? pipeNetwork.getRoute(this, portIndex, useOutlet) : null;
             if (!route) continue;
@@ -616,12 +641,6 @@ class Pool {
             ctx.lineTo(this.x + 100 * S + (5 * S * Math.cos(leverAngle)), this.y + 25 * S + (5 * S * Math.sin(leverAngle)));
             ctx.stroke();
 
-            ctx.beginPath(); //Draw the lever name text above the lever top
-            ctx.font = `${6 * S}px 'Press Start 2P', sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.fillStyle = 'rgb(0, 0, 0)';
-            ctx.fillText(`${this.leverName}`, this.x + 100 * S + (35 * S * Math.cos(leverAngle)), (this.y + 25 * S + (35 * S * Math.sin(leverAngle)) + (this.fillLevel < 0.25 ? 10 * S : -5 * S)));
-
             ctx.beginPath();
             ctx.font = `${6 * S}px 'Press Start 2P', sans-serif`;
             ctx.textAlign = 'center';
@@ -653,7 +672,7 @@ class Pool {
         ctx.font = `${10 * S}px 'Press Start 2P', sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillStyle = 'rgb(0, 0, 0)';
-        const titleStartX = this.x + 10 * S + ((this.inlets.length + 1) * 30 * S);
+        const titleStartX = this.x + 10 * S + ((this.inlets.length + 1) * 20 * S);
         const titleEndX = this.hasLever ? this.x + 88 * S : this.x + 120 * S;
         const titleMaxWidth = Math.max(40 * S, titleEndX - titleStartX);
         const titleWords = this.name.split(/\s+/);
@@ -676,6 +695,29 @@ class Pool {
         titleLines.forEach((line, lineIndex) => {
             ctx.fillText(line, labelX, labelY + lineIndex * (titleLineHeight + 2 * S));
         });
+
+        if (this.hasLever) {
+            const leverAngle = (1 - (0.6 + (0.8 * this.dialLevel))) * Math.PI;
+            const leverLabelX = this.x + 100 * S + (35 * S * Math.cos(leverAngle));
+            const leverLabelY = this.y + 25 * S + (35 * S * Math.sin(leverAngle)) - 8 * S;
+            ctx.font = `${6 * S}px 'Press Start 2P', sans-serif`;
+            ctx.textAlign = 'center';
+            const leverLabelWidth = ctx.measureText(this.leverName).width;
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(255, 255, 255)';
+            ctx.roundRect(
+                leverLabelX - (leverLabelWidth / 2) - 3 * S,
+                leverLabelY - 7 * S,
+                leverLabelWidth + 6 * S,
+                10 * S,
+                2 * S
+            );
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(0, 0, 0)';
+            ctx.fillText(this.leverName, leverLabelX, leverLabelY);
+        }
     }
 }
 
@@ -1246,15 +1288,15 @@ class PipeNetwork {
 }
 
 const pools = [
-    new Pool(20, 80, 0, [1], [8], 'Income', 'Taxes', 'rgba(200, 0, 0)', 0.5),
-    new Pool(20, 190, 1, [2], [6, 7], 'Net Income', 'Interest', 'rgba(0, 0, 200)', 0.5),
-    new Pool(20, 320, 2, [3], [], 'Consumption', 'NO-LEVER', 'rgba(0, 200, 0)', 0),
-    new Pool(20, 420, 3, [5], [4], 'Total Spending', 'Imports', 'rgba(200, 200, 0)', 0.5),
-    new Pool(200, 460, 4, [], [5], 'Foreign Balance', 'Exports', 'rgba(200, 0, 200)', 0.5),
-    new Pool(20, 600, 5, [0], [], 'National Income', 'NO-LEVER', 'rgba(0, 200, 200)', 0.5),
-    new Pool(200, 60, 6, [], [1, 7], 'Print Money', 'Rate', 'rgba(100, 100, 100)', 0.5),
-    new Pool(200, 190, 7, [3], [], 'Investment', 'NO-LEVER', 'rgba(150, 150, 0,)', 0.5),
-    new Pool(220, 330, 8, [5], [], 'Government Spending', 'NO-LEVER', 'rgba(0, 150, 150)', 0.5)
+    new Pool(20, 40, 0, [1], [8], 'Income', 'Taxes', '#C7E6D0', 0.5),
+    new Pool(20, 200, 1, [2], [6, 7], 'Net Income', 'Interest', '#24508A', 0.5),
+    new Pool(20, 420, 2, [3], [], 'Consumption', 'NO-LEVER', '#57C785', 0),
+    new Pool(20, 560, 3, [5], [4], 'Total Spending', 'Imports', '#9AA3AD', 0.5),
+    new Pool(220, 560, 4, [], [5], 'Foreign Balance', 'Exports', '#6F8FB8', 0.5),
+    new Pool(20, 700, 5, [0], [], 'National Income', 'NO-LEVER', '#2F7654', 0.5),
+    new Pool(220, 40, 6, [], [1, 7], 'Print Money', 'Rate', '#D7DCE2', 0.5),
+    new Pool(220, 280, 7, [3], [], 'Investment', 'NO-LEVER', '#3D9CB3', 0.5),
+    new Pool(220, 420, 8, [5], [], 'Government Spending', 'NO-LEVER', '#65707C', 0.5)
 ];
 
 // The following UI code only runs in a browser environment.
@@ -1263,24 +1305,27 @@ if (typeof document !== 'undefined') {
     const canvas = document.getElementById('c');
     const logicalCanvasWidth = canvas.width;
     const logicalCanvasHeight = canvas.height;
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
     const devicePixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-    const canvasScaleX = viewportWidth / logicalCanvasWidth;
-    const canvasScaleY = viewportHeight / logicalCanvasHeight;
-    canvas.width = viewportWidth * devicePixelRatio;
-    canvas.height = viewportHeight * devicePixelRatio;
-    canvas.style.width = '100vw';
-    canvas.style.height = '100vh';
     const ctx = canvas.getContext('2d');
-    ctx.setTransform(
-        canvasScaleX * devicePixelRatio,
-        0,
-        0,
-        canvasScaleY * devicePixelRatio,
-        0,
-        0
-    );
+
+    function resizeCanvas() {
+        const displayWidth = canvas.clientWidth;
+        const displayHeight = canvas.clientHeight;
+        canvas.width = Math.round(displayWidth * devicePixelRatio);
+        canvas.height = Math.round(displayHeight * devicePixelRatio);
+        const canvasScale = displayWidth / logicalCanvasWidth;
+        ctx.setTransform(
+            canvasScale * devicePixelRatio,
+            0,
+            0,
+            canvasScale * devicePixelRatio,
+            0,
+            0
+        );
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
     function getCanvasPoint(event) {
         const bounds = canvas.getBoundingClientRect();
@@ -1290,8 +1335,17 @@ if (typeof document !== 'undefined') {
         };
     }
 
+    const touchTargetPadding = 10;
+    const leverTouchRadius = 28 * S;
+
     setInterval(() => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (isPaused) {
+            ctx.clearRect(0, 0, logicalCanvasWidth, logicalCanvasHeight);
+            drawPresets(ctx);
+            return;
+        }
+        ctx.clearRect(0, 0, logicalCanvasWidth, logicalCanvasHeight);
+        renderPresetsBox(ctx);
         pipeNetwork.draw(ctx);
         pipeNetwork.drawTravelingCoins(ctx);
         for (const pool of pools) {
@@ -1336,6 +1390,17 @@ if (typeof document !== 'undefined') {
             + governmentCashScore * 0.15
         );
 
+        const lowestPerformingCategory = Math.min(taxesScore, interestScore, investmentScore, consumptionScore, exportScore, governmentCashScore);
+        const lowestCategoryName = (() => {
+            if (lowestPerformingCategory === taxesScore) return 'taxes';
+            if (lowestPerformingCategory === interestScore) return 'interest rates';
+            if (lowestPerformingCategory === investmentScore) return 'investment';
+            if (lowestPerformingCategory === consumptionScore) return 'consumption';
+            if (lowestPerformingCategory === exportScore) return 'exports';
+            if (lowestPerformingCategory === governmentCashScore) return 'government cash';
+            return '';
+        })();
+
         const inflationRate = Math.max(0, totalCoinsInCirculation - targetCoins) / targetCoins;
         const recessionRate = Math.max(0, targetCoins - totalCoinsInCirculation) / targetCoins;
         // Stability is deliberately harsh: either monetary excess or shortage
@@ -1345,7 +1410,7 @@ if (typeof document !== 'undefined') {
         const governmentCashMultiplier = govCashCoins === 0 ? 0.35 : 1;
         const economicHealthScore = Math.round(
             Math.max(0, Math.min(1000,
-                productiveScore * stabilityMultiplier * foreignBalanceMultiplier * governmentCashMultiplier * 1000
+                (productiveScore * stabilityMultiplier * foreignBalanceMultiplier * governmentCashMultiplier * 1000)
             ))
         );
 
@@ -1362,30 +1427,132 @@ if (typeof document !== 'undefined') {
         if (economicHealthScore < 400 && strugglingComponents.length === 0) strugglingComponents.push('overall economic health is poor');
         const warningMessage = strugglingComponents.length > 0
             ? `Warning: ${strugglingComponents[Math.floor(new Date().getSeconds() / 3) % strugglingComponents.length]}` //Rotate every 3 seconds
-            : 'Fiscally healthy.';
+            : `Fiscally healthy (watch ${lowestCategoryName}: ${Math.round(lowestPerformingCategory * 100)}%)`;
 
         ctx.font = `${10 * S}px 'Press Start 2P', sans-serif`;
         ctx.textAlign = 'right';
         ctx.fillStyle = 'rgb(0, 0, 0)';
-        ctx.fillText(`Economy Health: ${economicHealthScore}`, 390, 650);
+        ctx.fillText(`Economy Health: ${economicHealthScore} `, 390, 820);
+        ctx.fillStyle = '#0000FF';
+        ctx.fillText(`(Highest: ${maxGlobalScore})`, 390, 837);
+        ctx.fillStyle = 'rgb(0, 0, 0)';
         ctx.font = `${6 * S}px 'Press Start 2P', sans-serif`;
-        ctx.fillText(warningMessage, 390, 680);
-    }, 1000 / 24);
+        ctx.fillText(warningMessage, 390, 850);
+        ctx.fillText(`Current coin count: ${totalCoinsInCirculation}. Target: ${targetCoins}`, 390, 860);
+        healthLevels.push(economicHealthScore);
+        if (healthLevels.length > 1000) {
+            healthLevels.shift();
+        }
+        const smoothWindow = 5;
+        const smoothedHealthLevels = healthLevels.map((value, index) => {
+            const start = Math.max(0, index - Math.floor(smoothWindow / 2));
+            const end = Math.min(healthLevels.length, index + Math.ceil(smoothWindow / 2));
+            let sum = 0;
+            for (let j = start; j < end; j++) sum += healthLevels[j];
+            return sum / (end - start);
+        });
+        const minDisplayedHealth = Math.min(...smoothedHealthLevels);
+        const maxDisplayedHealth = Math.max(...smoothedHealthLevels);
+        const healthRange = Math.max(1, maxDisplayedHealth - minDisplayedHealth);
+        const chartTop = 750;
+        const chartBottom = 800;
+        const valueToY = (value) => chartBottom - ((value - minDisplayedHealth) / healthRange) * (chartBottom - chartTop);
+        if (maxDisplayedHealth > maxGlobalScore) {
+            maxGlobalScore = Math.round(maxDisplayedHealth);
+        }
+        ctx.save();
+        ctx.filter = 'blur(1px)';
+        let hasDrawnMaxHealth = false;
+        for (let i = 0; i < smoothedHealthLevels.length - 1; i++) {
+            const x1 = 200 + (i * 0.1);
+            const y1 = valueToY(smoothedHealthLevels[i]);
+            const x2 = 200 + ((i + 1) * 0.1);
+            const y2 = valueToY(smoothedHealthLevels[i + 1]);
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            if (smoothedHealthLevels[i] < 100) {
+                ctx.strokeStyle = 'rgb(255, 0, 0)';
+            } else if (smoothedHealthLevels[i] < 400) {
+                ctx.strokeStyle = 'rgb(255, 165, 0)';
+            } else if (smoothedHealthLevels[i] < 700) {
+                ctx.strokeStyle = 'rgb(0, 0, 0)';
+            } else {
+                ctx.strokeStyle = 'rgb(0, 255, 0)';
+            }
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            if (smoothedHealthLevels[i] === maxDisplayedHealth && smoothedHealthLevels[i] > 0 && !hasDrawnMaxHealth) {
+                hasDrawnMaxHealth = true;
+                ctx.fillStyle = 'rgb(0, 0, 255)';
+                ctx.arc(x1, y1, 2 * S, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.font = `${12 * S}px 'Press Start 2P', sans-serif`;
+                ctx.fillText(`${Math.round(maxDisplayedHealth)}`, x1 + 10, y1 - 5);
+            }
+        }
+        // Y axis (auto-scaled to the displayed values, like a stock chart)
+        ctx.beginPath();
+        ctx.moveTo(200, chartBottom);
+        ctx.lineTo(200, chartTop);
+        ctx.strokeStyle = 'rgb(120, 120, 120)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // X axis
+        ctx.beginPath();
+        ctx.moveTo(200, chartBottom);
+        ctx.lineTo(200 + (smoothedHealthLevels.length * 0.1), chartBottom);
+        ctx.strokeStyle = 'rgb(120, 120, 120)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // Low / mid / max Y-axis labels
+        const midDisplayedHealth = Math.round((minDisplayedHealth + maxDisplayedHealth) / 2);
+        ctx.font = `${10 * S}px 'Press Start 2P', sans-serif`;
+        ctx.textAlign = 'right';
+        ctx.fillStyle = 'rgb(120, 120, 120)';
+        ctx.fillText(`${Math.round(maxDisplayedHealth)}`, 196, chartTop + 6);
+        ctx.fillText(`${midDisplayedHealth}`, 196, (chartTop + chartBottom) / 2 + 3);
+        ctx.fillText(`${Math.round(minDisplayedHealth)}`, 196, chartBottom);
+        ctx.restore();
+    }, 1000 / 30;
 
     canvas.addEventListener("pointerdown", function (event) {
         event.preventDefault();
+        const pointer = getCanvasPoint(event);
+        if (isPaused && pointer.x >= logicalCanvasWidth - 30 - touchTargetPadding
+            && pointer.x <= logicalCanvasWidth - 10 + touchTargetPadding
+            && pointer.y >= 10 - touchTargetPadding && pointer.y <= 30 + touchTargetPadding) {
+            isPaused = false;
+            return;
+        }
+        if (isPaused) {
+            const presetScale = 5 * S;
+            const presetSize = 16 * presetScale;
+            const presetSpacing = (logicalCanvasHeight - (3 * presetSize)) / 4;
+            const presetX = (logicalCanvasWidth - presetSize) / 2;
+            const presetIds = ['e', 'a', 'c'];
+            for (let presetIndex = 0; presetIndex < presetIds.length; presetIndex++) {
+                const presetY = presetSpacing + presetIndex * (presetSize + presetSpacing);
+                if (pointer.x >= presetX - touchTargetPadding && pointer.x <= presetX + presetSize + touchTargetPadding
+                    && pointer.y >= presetY - touchTargetPadding
+                    && pointer.y <= presetY + presetSize + 24 + touchTargetPadding) {
+                    selectPreset(presetIds[presetIndex]);
+                    isPaused = false;
+                    return;
+                }
+            }
+        }
         // If mouse is over a pool's lever, start dragging the lever
         for (const pool of pools) {
             if (!pool.hasLever) continue;
             const leverAngle = (1 - (0.6 + (0.8 * pool.dialLevel))) * Math.PI;
             const leverX = pool.x + 100 * S + (35 * S * Math.cos(leverAngle));
             const leverY = pool.y + 25 * S + (35 * S * Math.sin(leverAngle));
-            const pointer = getCanvasPoint(event);
             const pointerX = pointer.x;
             const pointerY = pointer.y;
             const dx = pointerX - leverX;
             const dy = pointerY - leverY;
-            if (Math.sqrt(dx * dx + dy * dy) < 10 * S) {
+            if (Math.sqrt(dx * dx + dy * dy) < leverTouchRadius) {
                 // Start dragging this lever
                 canvas.setPointerCapture(event.pointerId);
                 canvas.addEventListener("pointermove", onMouseMove);
@@ -1411,10 +1578,168 @@ if (typeof document !== 'undefined') {
                     if (canvas.hasPointerCapture(event.pointerId)) {
                         canvas.releasePointerCapture(event.pointerId);
                     }
-                    console.log(`Final targetDialLevel for pool ${pool.id}: ${pool.targetDialLevel}`);
                 }
                 break;
             }
         }
+        // const pointer = getCanvasPoint(event);
+        if (pointer.x >= 350 && pointer.x <= 450 && pointer.y >= 750 && pointer.y <= 850) {
+            isPaused = true;
+        }
     });
+}
+
+
+let selectedPresetId = null;
+
+const presetConfigurations = {
+    e: { taxes: 0.7, interest: 0.1, imports: 0.4, exports: 0.7, rate: 0.1 },
+    a: { taxes: 0.35, interest: 0.15, imports: 0.85, exports: 0.3, rate: 1 },
+    c: { taxes: 0.85, interest: 0.1, imports: 0.6, exports: 0.8, rate: 0.8 }
+};
+
+function selectPreset(id) {
+    const configuration = presetConfigurations[id];
+    if (!configuration) return;
+    selectedPresetId = id;
+
+    const dialLevels = {
+        Taxes: configuration.taxes,
+        Interest: configuration.interest,
+        Imports: configuration.imports,
+        Exports: configuration.exports,
+        Rate: configuration.rate
+    };
+    for (const pool of pools) {
+        if (!pool.hasLever) continue;
+        const dialLevel = dialLevels[pool.leverName];
+        pool.dialLevel = dialLevel;
+        pool.targetDialLevel = dialLevel;
+        pool.leverX = pool.x + 100 * S + (35 * S * Math.cos((1 - (0.6 + (0.8 * dialLevel))) * Math.PI));
+        pool.leverY = pool.y + 25 * S + (35 * S * Math.sin((1 - (0.6 + (0.8 * dialLevel))) * Math.PI));
+    }
+
+    for (const pool of pools) {
+        pool.coins = [];
+        pool.departureAccumulator = 0;
+        pool.maintenanceAccumulator = 0;
+        pool.lossAccumulator = 0;
+    }
+    totalCoins = 0;
+    COIN_SCALE = STARTING_COIN_SCALE;
+    const incomePool = pools.find((pool) => pool.id === 0);
+    const incomeColumns = 10;
+    const incomeRows = 8;
+    for (let coinIndex = 0; coinIndex < targetCoins; coinIndex++) {
+        const column = coinIndex % incomeColumns;
+        const row = Math.floor(coinIndex / incomeColumns);
+        const coin = new Coin(
+            incomePool.coinBounds.left + (column / (incomeColumns - 1))
+            * (incomePool.coinBounds.right - incomePool.coinBounds.left),
+            incomePool.coinBounds.top + (row / (incomeRows - 1))
+            * (incomePool.coinBounds.bottom - incomePool.coinBounds.top)
+        );
+        coin.opacity = 1;
+        coin.velocityX = 0;
+        coin.velocityY = 0;
+        coin.hasEnteredPool = true;
+        incomePool.coins.push(coin);
+    }
+    totalCoins = targetCoins;
+    healthLevels = [];
+    maxGlobalScore = 0;
+    __rng = __makeRng(__globalSeed);
+}
+
+function renderPresetsBox(ctx) {
+    const boxX = 350;
+    const boxY = 750;
+    const sc = 2 * S;
+
+    for (let i = 0; i < blockMono.length; i++) { // 16x16 block
+        for (let j = 0; j < blockMono[i].length; j++) {
+            const char = blockMono[i][j];
+            if (char !== 0) {
+                ctx.fillStyle = 'rgb(252, 162, 68)';
+            } else {
+                ctx.fillStyle = 'rgb(238, 238, 238)';
+            }
+            ctx.fillRect(boxX + j * sc + 0.2, boxY + i * sc + 0.2, sc - 0.2, sc - 0.2);
+        }
+    }
+}
+
+function drawPresets(ctx) {
+    const transform = ctx.getTransform();
+    const width = ctx.canvas.width / transform.a;
+    const height = ctx.canvas.height / transform.d;
+    const sc = 5 * S;
+    const buttonSpacing = (height - (3 * sc * 16)) / 4;
+    const boxX = (width - (sc * 16)) / 2;
+    let boxY = buttonSpacing;
+    for (let i = 0; i < blockMono.length; i++) { // 16x16 block
+        for (let j = 0; j < blockMono[i].length; j++) {
+            const char = blockMono[i][j];
+            if (char !== 0) {
+                ctx.fillStyle = 'rgb(252, 162, 68)';
+            } else {
+                ctx.fillStyle = 'rgb(232, 232, 232)';
+            }
+            ctx.fillRect(boxX + j * sc + 0.2, boxY + i * sc + 0.2, sc - 0.2, sc - 0.2);
+        }
+    }
+    const title1 = "Elizabethan Era";
+    ctx.font = `${10 * S}px 'Press Start 2P', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgb(0, 0, 0)';
+    ctx.fillText(title1, width / 2, boxY + sc * 16 + 20);
+    boxY += sc * 16 + buttonSpacing;
+    for (let i = 0; i < blockDuo.length; i++) { // 16x16 block
+        for (let j = 0; j < blockDuo[i].length; j++) {
+            const char = blockDuo[i][j];
+            if (char === 0) {
+                ctx.fillStyle = 'rgb(255, 255, 255)';
+            } else if (char === 1) {
+                ctx.fillStyle = 'rgb(255, 0, 0)';
+            } else {
+                ctx.fillStyle = 'rgb(0, 0, 255)';
+            }
+            ctx.fillRect(boxX + j * sc + 0.2, boxY + i * sc + 0.2, sc - 0.2, sc - 0.2);
+        }
+    }
+    const title2 = "Modern America";
+    ctx.font = `${10 * S}px 'Press Start 2P', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgb(0, 0, 0)';
+    ctx.fillText(title2, width / 2, boxY + sc * 16 + 20);
+    boxY += sc * 16 + buttonSpacing;
+    for (let i = 0; i < blockMono.length; i++) { // 16x16 block
+        for (let j = 0; j < blockMono[i].length; j++) {
+            const char = blockMono[i][j];
+            if (char !== 0) {
+                ctx.fillStyle = 'rgb(255, 0, 0)';
+            } else {
+                ctx.fillStyle = 'rgb(255, 221, 0)';
+            }
+            ctx.fillRect(boxX + j * sc + 0.2, boxY + i * sc + 0.2, sc - 0.2, sc - 0.2);
+        }
+    }
+    const title3 = "Communism";
+    ctx.font = `${10 * S}px 'Press Start 2P', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgb(0, 0, 0)';
+    ctx.fillText(title3, width / 2, boxY + sc * 16 + 20);
+    const closeButtonX = width - 30;
+    const closeButtonY = 10;
+    const closeButtonSize = 20;
+    ctx.fillStyle = 'rgb(200, 0, 0)';
+    ctx.fillRect(closeButtonX, closeButtonY, closeButtonSize, closeButtonSize);
+    ctx.strokeStyle = 'rgb(255, 255, 255)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(closeButtonX + 5, closeButtonY + 5);
+    ctx.lineTo(closeButtonX + closeButtonSize - 5, closeButtonY + closeButtonSize - 5);
+    ctx.moveTo(closeButtonX + closeButtonSize - 5, closeButtonY + 5);
+    ctx.lineTo(closeButtonX + 5, closeButtonY + closeButtonSize - 5);
+    ctx.stroke();
 }

@@ -11,12 +11,21 @@ body {
 	background-color: #fff;
 	color: #000;
 	overflow: hidden;
+	width: 100vw;
+	height: 100vh;
+}
+
+#main {
+	display: grid;
+	place-items: center;
+	width: 100vw;
+	height: 100vh;
 }
 
 canvas {
 	display: block;
-	width: 100vw;
-	height: 100vh;
+	width: min(100vw, calc(100vh * 4 / 9));
+	height: min(100vh, calc(100vw * 9 / 4));
 	touch-action: none;
 	image-rendering: pixelated;
 }
